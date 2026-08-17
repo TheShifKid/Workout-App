@@ -1,6 +1,7 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { BottomNav } from './components/BottomNav';
 import { HomeScreen } from './screens/HomeScreen';
+import { PlanEditorScreen } from './screens/PlanEditorScreen';
 
 /** מסכי הלשוניות — עם ניווט תחתון קבוע. */
 function TabLayout() {
@@ -14,11 +15,24 @@ function TabLayout() {
   );
 }
 
+/** מסכים ממוקדים — בלי ניווט תחתון. */
+function FocusLayout() {
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <Outlet />
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <Routes>
       <Route element={<TabLayout />}>
         <Route path="/" element={<HomeScreen />} />
+      </Route>
+
+      <Route element={<FocusLayout />}>
+        <Route path="/workout/:workoutId/edit" element={<PlanEditorScreen />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
