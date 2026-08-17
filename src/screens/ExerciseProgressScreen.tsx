@@ -192,12 +192,12 @@ export function ExerciseProgressScreen() {
 
 function PRCard({ title, value, hint }: { title: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-line bg-surface p-3">
-      <div className="mb-1 flex items-center gap-1.5 text-muted">
+    <div className="rounded-2xl border border-line bg-surface p-3 shadow-hard-volt">
+      <div className="mb-1 flex items-center gap-1.5 text-flame">
         <IconTrophy className="h-4 w-4" />
-        <span className="text-[11px]">{title}</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider">{title}</span>
       </div>
-      <p className="tnum text-xl font-bold">{value}</p>
+      <p className="tnum-hero text-2xl">{value}</p>
       {hint && <p className="tnum mt-0.5 text-[11px] text-muted">{hint}</p>}
     </div>
   );

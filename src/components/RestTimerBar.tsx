@@ -14,8 +14,8 @@ export function RestTimerBar() {
   const almostDone = remainingSeconds <= 10;
 
   return (
-    <div className="pb-safe border-t border-line bg-surface px-3 pt-2">
-      <div className="mb-2 h-1 w-full overflow-hidden rounded-full bg-line">
+    <div className="pb-safe border-t-2 border-line-strong bg-surface px-3 pt-2">
+      <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-line">
         <div
           className={`h-full rounded-full transition-[width] duration-500 ease-linear ${
             almostDone ? 'bg-danger' : 'bg-volt'
@@ -28,24 +28,26 @@ export function RestTimerBar() {
         <button
           type="button"
           onClick={() => addSeconds(-15)}
-          className="touch shrink-0 rounded-xl border border-line px-3 text-sm text-muted active:bg-surface-2"
+          className="touch shrink-0 rounded-xl border border-line-strong px-3 text-sm font-bold text-muted active:bg-surface-2"
         >
           ‎−15
         </button>
 
         <div className="min-w-0 flex-1 text-center">
           <p
-            className={`tnum text-2xl font-bold leading-none ${almostDone ? 'text-danger' : 'text-volt'}`}
+            className={`tnum-hero text-3xl leading-none ${almostDone ? 'text-danger' : 'text-volt'}`}
           >
             {formatDuration(remainingSeconds)}
           </p>
-          <p className="truncate text-[11px] text-muted">{label || 'מנוחה'}</p>
+          <p className="truncate text-[11px] font-bold uppercase tracking-wider text-muted">
+            {label || 'מנוחה'}
+          </p>
         </div>
 
         <button
           type="button"
           onClick={() => addSeconds(15)}
-          className="touch shrink-0 rounded-xl border border-line px-3 text-sm text-muted active:bg-surface-2"
+          className="touch shrink-0 rounded-xl border border-line-strong px-3 text-sm font-bold text-muted active:bg-surface-2"
         >
           ‎+15
         </button>
@@ -53,7 +55,7 @@ export function RestTimerBar() {
         <button
           type="button"
           onClick={skip}
-          className="touch shrink-0 rounded-xl bg-volt px-4 text-sm font-bold text-ink active:bg-volt-dim"
+          className="touch shrink-0 rounded-xl bg-volt px-4 text-sm font-extrabold text-ink shadow-hard press active:bg-volt-dim"
         >
           דלג
         </button>

@@ -9,6 +9,9 @@ import { formatWeight } from '../../lib/format';
  *
  * שורה עליונה: מספר הסט, מה עשית בפעם הקודמת, וכפתורי חימום/מחיקה.
  * שורה תחתונה: משקל, חזרות, וי.
+ *
+ * חימום (כתום/להבה) ובוצע (ליים) מקבלים שני צבעים שונים לגמרי —
+ * כדי שאף פעם אי אפשר לבלבל בין "לא נספר בסטטיסטיקה" לבין "בוצע".
  */
 export function SetRow({
   log,
@@ -40,13 +43,17 @@ export function SetRow({
   return (
     <li
       className={`rounded-xl border px-2 py-2 transition-colors ${
-        done ? 'border-volt/40 bg-volt/8' : warmup ? 'border-line bg-ink/40' : 'border-line bg-ink'
+        done
+          ? 'border-volt bg-volt/8'
+          : warmup
+            ? 'border-flame/40 bg-flame/5'
+            : 'border-line bg-ink'
       }`}
     >
       <div className="mb-1.5 flex items-center gap-2 pr-1">
         <span
-          className={`tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs font-bold ${
-            warmup ? 'bg-surface-2 text-muted' : 'bg-surface-2 text-body'
+          className={`tnum-hero flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs ${
+            warmup ? 'bg-flame/15 text-flame' : done ? 'bg-volt text-ink' : 'bg-surface-2 text-body'
           }`}
         >
           {warmup ? 'ח' : log.setNumber}
@@ -58,8 +65,8 @@ export function SetRow({
           type="button"
           onClick={onToggleWarmup}
           aria-pressed={warmup}
-          className={`shrink-0 rounded-md px-2 py-1.5 text-[11px] transition-colors ${
-            warmup ? 'bg-volt/15 font-semibold text-volt' : 'text-muted active:bg-surface-2'
+          className={`shrink-0 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors ${
+            warmup ? 'bg-flame/15 text-flame' : 'text-muted active:bg-surface-2'
           }`}
         >
           חימום
@@ -107,10 +114,10 @@ export function SetRow({
           onClick={onToggleDone}
           aria-pressed={done}
           aria-label={done ? `בטל סימון סט ${log.setNumber}` : `סמן סט ${log.setNumber} כבוצע`}
-          className={`flex h-12 w-14 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+          className={`flex h-12 w-14 shrink-0 items-center justify-center rounded-xl border-2 transition-colors ${
             done
               ? 'border-volt bg-volt text-ink'
-              : 'border-line bg-surface-2 text-muted active:bg-line'
+              : 'border-line-strong bg-surface-2 text-muted active:border-volt active:text-volt'
           }`}
         >
           <IconCheck className="h-6 w-6" />

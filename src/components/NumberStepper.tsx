@@ -83,7 +83,7 @@ export function NumberStepper({
   };
 
   return (
-    <div className="flex items-stretch overflow-hidden rounded-xl border border-line bg-ink">
+    <div className="flex items-stretch overflow-hidden rounded-xl border border-line-strong bg-ink">
       <button
         type="button"
         aria-label={`הפחת ${label}`}
@@ -93,7 +93,7 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center text-muted active:bg-surface-2 active:text-body disabled:opacity-30"
+        className="flex w-11 shrink-0 items-center justify-center border-l border-line-strong bg-surface-2 text-muted active:bg-line active:text-volt disabled:opacity-30"
       >
         <IconMinus className="h-5 w-5" />
       </button>
@@ -119,12 +119,12 @@ export function NumberStepper({
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
-          className={`tnum h-12 w-full bg-transparent text-center text-lg font-semibold outline-none ${
+          className={`tnum-hero h-12 w-full bg-transparent text-center text-xl outline-none ${
             usingGhost && !focused ? 'text-muted' : 'text-body'
           }`}
         />
         {suffix && (
-          <span className="pointer-events-none absolute left-2 text-[11px] text-muted">
+          <span className="pointer-events-none absolute left-2 text-[10px] font-bold uppercase tracking-wide text-muted">
             {suffix}
           </span>
         )}
@@ -139,7 +139,7 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center text-muted active:bg-surface-2 active:text-body disabled:opacity-30"
+        className="flex w-11 shrink-0 items-center justify-center border-r border-line-strong bg-surface-2 text-muted active:bg-line active:text-volt disabled:opacity-30"
       >
         <IconPlus className="h-5 w-5" />
       </button>

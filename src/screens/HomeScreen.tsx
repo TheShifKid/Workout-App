@@ -65,16 +65,22 @@ export function HomeScreen() {
         <button
           type="button"
           onClick={() => navigate(`/session/${activeSession.id}`)}
-          className="flex w-full items-center gap-3 border-b border-volt/30 bg-volt/10 px-4 py-3 text-right"
+          className="flex w-full items-center gap-3 border-b-2 border-volt bg-volt/10 px-4 py-3 text-right"
         >
           <span className="relative flex h-2.5 w-2.5 shrink-0">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-volt opacity-70" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-volt" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-bold text-volt">המשך אימון</span>
-            <span className="block truncate text-xs text-muted">
-              {activeSession.workoutName} · התחיל {formatRelativeDay(activeSession.startedAt)}
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-volt">
+              המשך אימון
+            </span>
+            <span className="block truncate font-bold">
+              {activeSession.workoutName}
+              <span className="font-normal text-muted">
+                {' · התחיל '}
+                {formatRelativeDay(activeSession.startedAt)}
+              </span>
             </span>
           </span>
           <IconPlay className="h-5 w-5 shrink-0 text-volt" />
@@ -99,16 +105,17 @@ export function HomeScreen() {
           rows.map(({ workout, lastSession, exerciseCount }) => (
             <div
               key={workout.id}
-              className="flex items-stretch overflow-hidden rounded-2xl border border-line bg-surface"
+              className="flex items-stretch rounded-2xl border border-line bg-surface"
+              style={{ boxShadow: `3px 3px 0 0 ${workout.color}` }}
             >
-              <div className="w-1.5 shrink-0" style={{ backgroundColor: workout.color }} />
+              <div className="w-2 shrink-0 rounded-s-2xl" style={{ backgroundColor: workout.color }} />
 
               <button
                 type="button"
                 onClick={() => navigate(`/workout/${workout.id}/edit`)}
                 className="min-w-0 flex-1 px-4 py-3 text-right active:bg-surface-2"
               >
-                <p className="truncate text-lg font-bold">{workout.name}</p>
+                <p className="truncate text-xl font-extrabold tracking-tight">{workout.name}</p>
                 <p className="truncate text-xs text-muted">
                   {exerciseCount > 0
                     ? plural(exerciseCount, 'תרגיל אחד', 'תרגילים')
@@ -118,7 +125,7 @@ export function HomeScreen() {
                 </p>
               </button>
 
-              <div className="flex shrink-0 items-center gap-1 pl-2">
+              <div className="flex shrink-0 items-center gap-1 pl-3">
                 <Button
                   variant="ghost"
                   onClick={() => navigate(`/workout/${workout.id}/edit`)}

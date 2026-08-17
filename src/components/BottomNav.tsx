@@ -17,13 +17,22 @@ export function BottomNav() {
               to={to}
               end={to === '/'}
               className={({ isActive }) =>
-                `flex min-h-[56px] flex-col items-center justify-center gap-0.5 text-[11px] transition-colors ${
-                  isActive ? 'text-volt' : 'text-muted'
+                `relative flex min-h-[56px] flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+                  isActive ? 'font-bold text-volt' : 'font-medium text-muted'
                 }`
               }
             >
-              <Icon className="h-6 w-6" />
-              {label}
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`absolute top-0 h-[3px] w-8 rounded-full transition-colors ${
+                      isActive ? 'bg-volt' : 'bg-transparent'
+                    }`}
+                  />
+                  <Icon className="h-6 w-6" />
+                  {label}
+                </>
+              )}
             </NavLink>
           </li>
         ))}

@@ -7,7 +7,7 @@ import { IconBack } from './icons';
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-volt text-ink font-bold active:bg-volt-dim',
+  primary: 'bg-volt text-ink font-extrabold shadow-hard press active:bg-volt-dim',
   secondary: 'bg-surface-2 text-body border border-line active:bg-line',
   ghost: 'text-body active:bg-surface-2',
   danger: 'bg-transparent text-danger border border-danger/50 active:bg-danger/10',
@@ -23,7 +23,7 @@ export function Button({
     <button
       type="button"
       {...props}
-      className={`touch inline-flex items-center justify-center gap-2 rounded-xl px-4 text-base transition-colors disabled:opacity-40 ${VARIANTS[variant]} ${full ? 'w-full' : ''} ${className}`}
+      className={`touch inline-flex items-center justify-center gap-2 rounded-xl px-4 text-base transition-colors disabled:opacity-40 disabled:shadow-none ${VARIANTS[variant]} ${full ? 'w-full' : ''} ${className}`}
     />
   );
 }
@@ -77,8 +77,8 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line px-6 py-10 text-center">
-      <p className="text-lg font-bold">{title}</p>
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line-strong px-6 py-10 text-center">
+      <p className="text-lg font-extrabold">{title}</p>
       <p className="max-w-xs text-sm leading-relaxed text-muted">{body}</p>
       {action && <div className="pt-2">{action}</div>}
     </div>
@@ -111,7 +111,7 @@ export function ScreenHeader({
           </IconButton>
         )}
         <div className={`min-w-0 flex-1 ${back ? '' : 'px-2'}`}>
-          <h1 className="truncate text-xl font-bold">{title}</h1>
+          <h1 className="truncate text-2xl font-extrabold tracking-tight">{title}</h1>
           {subtitle && <p className="truncate text-xs text-muted">{subtitle}</p>}
         </div>
         {action}
@@ -143,7 +143,7 @@ export function Chip({
       onClick={onClick}
       className={`shrink-0 rounded-full border px-3 py-2 text-sm transition-colors ${
         active
-          ? 'border-volt bg-volt text-ink font-semibold'
+          ? 'border-volt bg-volt text-ink font-bold'
           : 'border-line bg-surface text-muted active:bg-surface-2'
       }`}
     >
@@ -152,12 +152,12 @@ export function Chip({
   );
 }
 
-/** תווית קטנה מעל ערך מספרי, לשורות סיכום. */
+/** תווית קטנה מעל ערך מספרי, לשורות סיכום — ספרות בסגנון לוח תוצאות. */
 export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="min-w-0 flex-1">
-      <p className="text-[11px] font-medium tracking-wide text-muted">{label}</p>
-      <p className="tnum truncate text-lg font-bold leading-tight">{value}</p>
+      <p className="text-[11px] font-bold uppercase tracking-wider text-muted">{label}</p>
+      <p className="tnum-hero truncate text-xl leading-tight">{value}</p>
       {hint && <p className="truncate text-[11px] text-muted">{hint}</p>}
     </div>
   );

@@ -1,24 +1,98 @@
 @import 'tailwindcss';
 
 /*
-  פלטה שטוחה עם ניגודיות גבוהה — בלי גרדיאנטים ובלי זכוכית.
-  התאורה בחדר כושר קשה, והמסך נקרא מזווית ובמהירות.
+  Rubik מתארח מקומית (לא CDN) — כדי שהגופן ייטען אופליין כמו כל שאר
+  האפליקציה, ולא ייפול חזרה לגופן מערכת גנרי ברגע שאין רשת.
+  שני subsets בלבד (עברית + לטינית) בארבעה משקלים — כל שאר התווים
+  (אימוג'י וכו') נופלים חזרה לפונט המערכת בשרשרת ה-fallback.
+*/
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/rubik-400-hebrew.woff2') format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/rubik-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+20AC, U+2122;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/rubik-500-hebrew.woff2') format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/rubik-500-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+20AC, U+2122;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/rubik-700-hebrew.woff2') format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/rubik-700-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+20AC, U+2122;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/rubik-900-hebrew.woff2') format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/rubik-900-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+20AC, U+2122;
+}
+
+/*
+  לוח בייס: כמעט-שחור אמיתי (לא אפור-סגלגל) + ליים חשמלי כצבע חתימה,
+  ותפוז "להבה" כמשני. הכוונה: זהות של לוח תוצאות בחדר כושר, לא
+  "AI כהה" עם גרדיאנט וזכוכית מטושטשת.
 */
 @theme {
   --color-ink: #0a0a0b;
-  --color-surface: #141416;
-  --color-surface-2: #1c1c20;
-  --color-line: #2c2c31;
-  --color-line-strong: #3d3d44;
+  --color-surface: #17171a;
+  --color-surface-2: #202024;
+  --color-line: #2e2e34;
+  --color-line-strong: #46464e;
   --color-body: #fafaf9;
   --color-muted: #8e8e96;
   --color-volt: #d6f94b;
   --color-volt-dim: #a8c534;
+  --color-flame: #ff8a3d;
+  --color-flame-dim: #e06f26;
   --color-danger: #ff5a4e;
 
   --font-sans:
-    system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Hebrew', 'Arial Hebrew', Arial,
-    sans-serif;
+    'Rubik', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Hebrew', 'Arial Hebrew',
+    Arial, sans-serif;
 }
 
 @layer base {
@@ -31,10 +105,18 @@
   body {
     margin: 0;
     background-color: var(--color-ink);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.025 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
     color: var(--color-body);
     font-family: var(--font-sans);
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2 {
+    font-weight: 800;
+    letter-spacing: -0.01em;
   }
 
   /* מונע זום אוטומטי של iOS בפוקוס על שדה */
@@ -68,6 +150,40 @@
 @utility tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum';
+}
+
+/* מספרים גדולים בסגנון לוח תוצאות — משקל, נפח, טיימר, שיאים */
+@utility tnum-hero {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* צל קשה, בלי טשטוש — האלמנט הגרפי החוזר של המערכת במקום glow/glass */
+@utility shadow-hard {
+  box-shadow: 3px 3px 0 0 var(--color-line-strong);
+}
+
+@utility shadow-hard-volt {
+  box-shadow: 3px 3px 0 0 var(--color-volt);
+}
+
+/* לחיצה "שוקעת" את הצל — תחושת מגע ממשית על כפתור ראשי */
+@utility press {
+  transition:
+    transform 0.08s ease-out,
+    box-shadow 0.08s ease-out;
+
+  &:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 0 transparent !important;
+  }
+}
+
+/* תג עם פינה חתוכה — לשימוש נקודתי בלבד (תגי שיא, צ'יפים) */
+@utility tag-cut {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 
 /* אזור בטוח בתחתית המסך (סרגל הניווט של אנדרואיד / ה-home bar) */
