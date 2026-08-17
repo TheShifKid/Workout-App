@@ -6,6 +6,7 @@ import { ActiveSessionScreen } from './screens/ActiveSessionScreen';
 import { HistoryScreen } from './screens/HistoryScreen';
 import { SessionDetailScreen } from './screens/SessionDetailScreen';
 import { ExerciseProgressScreen } from './screens/ExerciseProgressScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
 
 /** מסכי הלשוניות — עם ניווט תחתון קבוע. */
 function TabLayout() {
@@ -34,6 +35,7 @@ export default function App() {
       <Route element={<TabLayout />}>
         <Route path="/" element={<HomeScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
+        <Route path="/settings" element={<SettingsScreen />} />
       </Route>
 
       <Route element={<FocusLayout />}>
