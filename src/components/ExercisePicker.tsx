@@ -5,6 +5,7 @@ import { createExercise } from '../services/planService';
 import { IconPlus, IconSearch } from './icons';
 import { Sheet } from './Sheet';
 import { Button, Chip, EmptyState, Spinner } from './ui';
+import { HScroller } from './HScroller';
 
 /**
  * בורר תרגילים: חיפוש, סינון לפי קבוצת שריר, ויצירת תרגיל חדש בשורה אחת
@@ -85,15 +86,17 @@ export function ExercisePicker({
           />
         </div>
 
-        <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1">
-          <Chip active={group === null} onClick={() => setGroup(null)}>
-            הכל
-          </Chip>
-          {MUSCLE_GROUPS.map((g) => (
-            <Chip key={g} active={group === g} onClick={() => setGroup(g)}>
-              {g}
+        <div className="mt-3">
+          <HScroller>
+            <Chip active={group === null} onClick={() => setGroup(null)}>
+              הכל
             </Chip>
-          ))}
+            {MUSCLE_GROUPS.map((g) => (
+              <Chip key={g} active={group === g} onClick={() => setGroup(g)}>
+                {g}
+              </Chip>
+            ))}
+          </HScroller>
         </div>
       </div>
 
