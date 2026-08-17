@@ -3,6 +3,9 @@ import { BottomNav } from './components/BottomNav';
 import { HomeScreen } from './screens/HomeScreen';
 import { PlanEditorScreen } from './screens/PlanEditorScreen';
 import { ActiveSessionScreen } from './screens/ActiveSessionScreen';
+import { HistoryScreen } from './screens/HistoryScreen';
+import { SessionDetailScreen } from './screens/SessionDetailScreen';
+import { ExerciseProgressScreen } from './screens/ExerciseProgressScreen';
 
 /** מסכי הלשוניות — עם ניווט תחתון קבוע. */
 function TabLayout() {
@@ -30,11 +33,14 @@ export default function App() {
     <Routes>
       <Route element={<TabLayout />}>
         <Route path="/" element={<HomeScreen />} />
+        <Route path="/history" element={<HistoryScreen />} />
       </Route>
 
       <Route element={<FocusLayout />}>
         <Route path="/workout/:workoutId/edit" element={<PlanEditorScreen />} />
         <Route path="/session/:sessionId" element={<ActiveSessionScreen />} />
+        <Route path="/history/:sessionId" element={<SessionDetailScreen />} />
+        <Route path="/exercise/:exerciseId" element={<ExerciseProgressScreen />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
