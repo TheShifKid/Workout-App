@@ -1,0 +1,86 @@
+@import 'tailwindcss';
+
+/*
+  פלטה שטוחה עם ניגודיות גבוהה — בלי גרדיאנטים ובלי זכוכית.
+  התאורה בחדר כושר קשה, והמסך נקרא מזווית ובמהירות.
+*/
+@theme {
+  --color-ink: #0a0a0b;
+  --color-surface: #141416;
+  --color-surface-2: #1c1c20;
+  --color-line: #2c2c31;
+  --color-line-strong: #3d3d44;
+  --color-body: #fafaf9;
+  --color-muted: #8e8e96;
+  --color-volt: #d6f94b;
+  --color-volt-dim: #a8c534;
+  --color-danger: #ff5a4e;
+
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Hebrew', 'Arial Hebrew', Arial,
+    sans-serif;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-ink);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-ink);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* מונע זום אוטומטי של iOS בפוקוס על שדה */
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+    font-size: 16px;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+
+  ::placeholder {
+    color: var(--color-muted);
+    opacity: 1;
+  }
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* אזור בטוח בתחתית המסך (סרגל הניווט של אנדרואיד / ה-home bar) */
+@utility pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+}
+
+@utility pt-safe {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+}
+
+/* גובה מגע מינימלי — 48px, גם באצבע רטובה */
+@utility touch {
+  min-height: 48px;
+  min-width: 48px;
+}
