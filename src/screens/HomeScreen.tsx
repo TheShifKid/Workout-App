@@ -65,7 +65,7 @@ export function HomeScreen() {
         <button
           type="button"
           onClick={() => navigate(`/session/${activeSession.id}`)}
-          className="flex w-full items-center gap-3 border-b-2 border-volt bg-volt/10 px-4 py-3 text-right"
+          className="tap flex w-full items-center gap-3 border-b-2 border-volt bg-volt/10 px-4 py-3 text-right"
         >
           <span className="relative flex h-2.5 w-2.5 shrink-0">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-volt opacity-70" />
@@ -113,7 +113,7 @@ export function HomeScreen() {
               <button
                 type="button"
                 onClick={() => navigate(`/workout/${workout.id}/edit`)}
-                className="min-w-0 flex-1 px-4 py-3 text-right active:bg-surface-2"
+                className="tap min-w-0 flex-1 px-4 py-3 text-right"
               >
                 <p className="truncate text-xl font-extrabold tracking-tight">{workout.name}</p>
                 <p className="truncate text-xs text-muted">

@@ -299,7 +299,7 @@ function ModeOption({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full rounded-xl border p-3 text-right transition-colors ${
+      className={`tap w-full rounded-xl border p-3 text-right transition-colors ${
         active ? 'border-volt bg-volt/5' : 'border-line bg-ink'
       }`}
     >

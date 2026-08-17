@@ -34,7 +34,7 @@ export function HistoryScreen() {
                     <button
                       type="button"
                       onClick={() => navigate(`/history/${session.id}`)}
-                      className="flex w-full items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-3 text-right active:bg-surface-2"
+                      className="tap flex w-full items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-3 text-right"
                     >
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-bold">{session.workoutName}</p>

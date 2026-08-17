@@ -8,8 +8,8 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-volt text-ink font-extrabold shadow-hard press active:bg-volt-dim',
-  secondary: 'bg-surface-2 text-body border border-line active:bg-line',
-  ghost: 'text-body active:bg-surface-2',
+  secondary: 'bg-surface-2 text-body border border-line tap',
+  ghost: 'text-body tap',
   danger: 'bg-transparent text-danger border border-danger/50 active:bg-danger/10',
 };
 
@@ -39,7 +39,7 @@ export function IconButton({
       type="button"
       aria-label={label}
       {...props}
-      className={`touch inline-flex items-center justify-center rounded-xl text-muted transition-colors active:bg-surface-2 active:text-body disabled:opacity-30 ${className}`}
+      className={`touch tap inline-flex items-center justify-center rounded-xl text-muted transition-colors active:text-body disabled:opacity-30 ${className}`}
     />
   );
 }
@@ -57,7 +57,7 @@ export function Card({
   return (
     <Tag
       onClick={onClick}
-      className={`w-full rounded-2xl border border-line bg-surface text-right ${className}`}
+      className={`w-full rounded-2xl border border-line bg-surface text-right ${onClick ? 'tap' : ''} ${className}`}
     >
       {children}
     </Tag>
@@ -142,9 +142,7 @@ export function Chip({
       type="button"
       onClick={onClick}
       className={`shrink-0 rounded-full border px-3 py-2 text-sm transition-colors ${
-        active
-          ? 'border-volt bg-volt text-ink font-bold'
-          : 'border-line bg-surface text-muted active:bg-surface-2'
+        active ? 'border-volt bg-volt text-ink font-bold' : 'tap border-line bg-surface text-muted'
       }`}
     >
       {children}

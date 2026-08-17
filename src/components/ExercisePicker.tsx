@@ -148,7 +148,7 @@ export function ExercisePicker({
               <button
                 type="button"
                 onClick={() => pick(exercise.id)}
-                className="touch flex w-full items-center gap-3 rounded-xl border border-line bg-surface-2 px-4 text-right active:bg-line"
+                className="tap touch flex w-full items-center gap-3 rounded-xl border border-line bg-surface-2 px-4 text-right"
               >
                 <span className="min-w-0 flex-1 truncate py-2 font-medium">{exercise.name}</span>
                 <span className="shrink-0 text-xs text-muted">

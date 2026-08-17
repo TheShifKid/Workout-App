@@ -52,7 +52,7 @@ export function SessionExerciseCard({
         <div className="min-w-0 flex-1">
           <Link
             to={`/exercise/${snapshot.exerciseId}`}
-            className="flex items-center gap-1.5 font-bold"
+            className="tap -mx-1 -my-0.5 flex items-center gap-1.5 rounded-md px-1 py-0.5 font-bold"
           >
             <span className="truncate">{exercise?.name ?? snapshot.exerciseName}</span>
             <IconChart className="h-4 w-4 shrink-0 text-muted" />

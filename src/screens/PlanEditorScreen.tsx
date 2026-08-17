@@ -126,7 +126,7 @@ export function PlanEditorScreen() {
                 aria-label={`צבע ${color}`}
                 onClick={() => recolorWorkout(workout.id, color)}
                 style={{ backgroundColor: color }}
-                className={`h-9 w-9 rounded-full transition-transform ${
+                className={`tap h-9 w-9 rounded-full transition-transform ${
                   workout.color === color ? 'ring-2 ring-body ring-offset-2 ring-offset-surface' : ''
                 }`}
               />
@@ -240,7 +240,7 @@ function PlanRow({
         <button
           type="button"
           onClick={onToggle}
-          className="min-w-0 flex-1 py-3 pl-2 text-right active:bg-surface-2"
+          className="tap min-w-0 flex-1 py-3 pl-2 text-right"
         >
           <p className="truncate font-semibold">
             <span className="tnum text-muted">{index + 1}. </span>

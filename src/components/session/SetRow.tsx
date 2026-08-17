@@ -66,7 +66,7 @@ export function SetRow({
           onClick={onToggleWarmup}
           aria-pressed={warmup}
           className={`shrink-0 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors ${
-            warmup ? 'bg-flame/15 text-flame' : 'text-muted active:bg-surface-2'
+            warmup ? 'bg-flame/15 text-flame' : 'tap text-muted'
           }`}
         >
           חימום
@@ -77,7 +77,7 @@ export function SetRow({
           onClick={onRemove}
           disabled={!canRemove}
           aria-label={`מחק סט ${log.setNumber}`}
-          className="shrink-0 rounded-md p-1.5 text-muted active:bg-surface-2 disabled:opacity-25"
+          className="tap shrink-0 rounded-md p-1.5 text-muted disabled:opacity-25"
         >
           <IconTrash className="h-4 w-4" />
         </button>

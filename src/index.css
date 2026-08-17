@@ -169,6 +169,21 @@
   box-shadow: 3px 3px 0 0 var(--color-volt);
 }
 
+/*
+  משוב לחיצה אחיד לכל אלמנט לחיץ באפליקציה — כרטיסים, שורות רשימה,
+  צ'יפים, כפתורי אייקון. שכבת "עמעום" לבנה שקופה שמצטיירת מעל צבע
+  הרקע הקיים (background-image מצטייר מעל background-color), כך
+  שאותה תחושת לחיצה עובדת זהה על גבי ink, surface או surface-2 בלי
+  צורך לבחור גוון אפור מתאים לכל מקום בנפרד.
+*/
+@utility tap {
+  transition: background-color 0.1s ease-out;
+
+  &:active {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+  }
+}
+
 /* לחיצה "שוקעת" את הצל — תחושת מגע ממשית על כפתור ראשי */
 @utility press {
   transition:

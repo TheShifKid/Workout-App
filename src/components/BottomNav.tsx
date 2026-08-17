@@ -17,7 +17,7 @@ export function BottomNav() {
               to={to}
               end={to === '/'}
               className={({ isActive }) =>
-                `relative flex min-h-[56px] flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+                `tap relative flex min-h-[56px] flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
                   isActive ? 'font-bold text-volt' : 'font-medium text-muted'
                 }`
               }

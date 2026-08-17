@@ -129,7 +129,7 @@ export function ExerciseProgressScreen() {
                     <button
                       type="button"
                       onClick={() => navigate(`/history/${entry.session.id}`)}
-                      className="flex w-full items-center gap-2 border-b border-line px-3 py-2 text-right active:bg-surface-2"
+                      className="tap flex w-full items-center gap-2 border-b border-line px-3 py-2 text-right"
                     >
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold">
                         {formatDateLong(entry.session.startedAt)}

@@ -28,7 +28,7 @@ export function RestTimerBar() {
         <button
           type="button"
           onClick={() => addSeconds(-15)}
-          className="touch shrink-0 rounded-xl border border-line-strong px-3 text-sm font-bold text-muted active:bg-surface-2"
+          className="tap touch shrink-0 rounded-xl border border-line-strong px-3 text-sm font-bold text-muted"
         >
           ‎−15
         </button>
@@ -47,7 +47,7 @@ export function RestTimerBar() {
         <button
           type="button"
           onClick={() => addSeconds(15)}
-          className="touch shrink-0 rounded-xl border border-line-strong px-3 text-sm font-bold text-muted active:bg-surface-2"
+          className="tap touch shrink-0 rounded-xl border border-line-strong px-3 text-sm font-bold text-muted"
         >
           ‎+15
         </button>
