@@ -7,10 +7,10 @@ import { IconBack } from './icons';
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-volt text-ink font-extrabold shadow-hard press active:bg-volt-dim',
+  primary: 'bg-volt text-ink font-extrabold shadow-hard press hover-volt',
   secondary: 'bg-surface-2 text-body border border-line tap',
   ghost: 'text-body tap',
-  danger: 'bg-transparent text-danger border border-danger/50 active:bg-danger/10',
+  danger: 'bg-transparent text-danger border border-danger/50 hover-danger-wash',
 };
 
 export function Button({

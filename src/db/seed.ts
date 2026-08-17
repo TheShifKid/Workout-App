@@ -1,11 +1,13 @@
 import { db } from './db';
-import { newId } from './ids';
-import type { Equipment, Exercise, MuscleGroup, Workout, WorkoutExercise } from './types';
+import type { Equipment, Exercise, MuscleGroup } from './types';
 
 /**
- * זריעה ראשונית. רצה פעם אחת בלבד — אם כבר יש תרגילים במסד, לא נוגעים בכלום.
- * מזהי התרגילים הזרועים קבועים (ולא UUID אקראי) כדי שמיזוג גיבוי בין מכשירים
- * לא ייצור כפילויות של אותו תרגיל.
+ * זריעה ראשונית — מאגר התרגילים בלבד. רצה פעם אחת בלבד — אם כבר יש
+ * תרגילים במסד, לא נוגעים בכלום. מזהי התרגילים הזרועים קבועים (ולא
+ * UUID אקראי) כדי שמיזוג גיבוי בין מכשירים לא ייצור כפילויות.
+ *
+ * סוגי אימון (workouts) לא נזרעים — מסך הבית מתחיל ריק, והמשתמש בונה
+ * את התוכנית שלו מאפס.
  */
 
 type SeedExercise = [slug: string, name: string, muscleGroup: MuscleGroup, equipment: Equipment];
@@ -89,54 +91,6 @@ const SEED_EXERCISES: SeedExercise[] = [
 
 const seedExerciseId = (slug: string) => `seed-${slug}`;
 
-type SeedWorkout = {
-  name: string;
-  color: string;
-  /** [slug, סטים, מינ' חזרות, מקס' חזרות, מנוחה בשניות] */
-  items: [string, number, number, number, number][];
-};
-
-const SEED_WORKOUTS: SeedWorkout[] = [
-  {
-    name: 'דחיפה',
-    color: '#F97316',
-    items: [
-      ['bench-press', 4, 6, 8, 150],
-      ['db-incline-press', 3, 8, 12, 120],
-      ['db-shoulder-press', 3, 8, 12, 120],
-      ['cable-fly', 3, 12, 15, 90],
-      ['lateral-raise', 4, 12, 20, 60],
-      ['rope-pushdown', 3, 10, 15, 75],
-    ],
-  },
-  {
-    name: 'משיכה',
-    color: '#38BDF8',
-    items: [
-      ['pull-up', 4, 6, 10, 150],
-      ['barbell-row', 4, 8, 10, 150],
-      ['lat-pulldown', 3, 10, 12, 105],
-      ['seated-row', 3, 10, 12, 105],
-      ['face-pull', 3, 15, 20, 60],
-      ['barbell-curl', 3, 8, 12, 75],
-      ['hammer-curl', 3, 10, 15, 60],
-    ],
-  },
-  {
-    name: 'רגליים',
-    color: '#A78BFA',
-    items: [
-      ['back-squat', 4, 5, 8, 180],
-      ['romanian-deadlift', 3, 8, 10, 150],
-      ['leg-press', 3, 10, 15, 120],
-      ['leg-curl', 3, 10, 15, 90],
-      ['leg-extension', 3, 12, 15, 90],
-      ['standing-calf-raise', 4, 12, 20, 60],
-      ['hanging-leg-raise', 3, 10, 15, 60],
-    ],
-  },
-];
-
 export async function seedIfEmpty(): Promise<void> {
   const existing = await db.exercises.count();
   if (existing > 0) return;
@@ -152,36 +106,5 @@ export async function seedIfEmpty(): Promise<void> {
     }),
   );
 
-  const workouts: Workout[] = [];
-  const workoutExercises: WorkoutExercise[] = [];
-
-  SEED_WORKOUTS.forEach((seed, workoutIndex) => {
-    const workoutId = newId();
-    workouts.push({
-      id: workoutId,
-      name: seed.name,
-      color: seed.color,
-      order: workoutIndex,
-    });
-
-    seed.items.forEach(([slug, targetSets, targetRepsMin, targetRepsMax, restSeconds], i) => {
-      workoutExercises.push({
-        id: newId(),
-        workoutId,
-        exerciseId: seedExerciseId(slug),
-        order: i,
-        targetSets,
-        targetRepsMin,
-        targetRepsMax,
-        restSeconds,
-        note: '',
-      });
-    });
-  });
-
-  await db.transaction('rw', db.exercises, db.workouts, db.workoutExercises, async () => {
-    await db.exercises.bulkAdd(exercises);
-    await db.workouts.bulkAdd(workouts);
-    await db.workoutExercises.bulkAdd(workoutExercises);
-  });
+  await db.exercises.bulkAdd(exercises);
 }

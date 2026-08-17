@@ -93,7 +93,7 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center border-l border-line-strong bg-surface-2 text-muted active:bg-line active:text-volt disabled:opacity-30"
+        className="flex w-11 shrink-0 items-center justify-center border-l border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-30"
       >
         <IconMinus className="h-5 w-5" />
       </button>
@@ -139,7 +139,7 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center border-r border-line-strong bg-surface-2 text-muted active:bg-line active:text-volt disabled:opacity-30"
+        className="flex w-11 shrink-0 items-center justify-center border-r border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-30"
       >
         <IconPlus className="h-5 w-5" />
       </button>

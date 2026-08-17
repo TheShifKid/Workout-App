@@ -117,7 +117,7 @@ export function SetRow({
           className={`flex h-12 w-14 shrink-0 items-center justify-center rounded-xl border-2 transition-colors ${
             done
               ? 'border-volt bg-volt text-ink'
-              : 'border-line-strong bg-surface-2 text-muted active:border-volt active:text-volt'
+              : 'border-line-strong bg-surface-2 text-muted hover-check'
           }`}
         >
           <IconCheck className="h-6 w-6" />

@@ -110,11 +110,7 @@ export function HomeScreen() {
             >
               <div className="w-2 shrink-0 rounded-s-2xl" style={{ backgroundColor: workout.color }} />
 
-              <button
-                type="button"
-                onClick={() => navigate(`/workout/${workout.id}/edit`)}
-                className="tap min-w-0 flex-1 px-4 py-3 text-right"
-              >
+              <div className="min-w-0 flex-1 px-4 py-3 text-right">
                 <p className="truncate text-xl font-extrabold tracking-tight">{workout.name}</p>
                 <p className="truncate text-xs text-muted">
                   {exerciseCount > 0
@@ -123,7 +119,7 @@ export function HomeScreen() {
                   {' · '}
                   {lastSession ? `בוצע ${formatRelativeDay(lastSession.startedAt)}` : 'טרם בוצע'}
                 </p>
-              </button>
+              </div>
 
               <div className="flex shrink-0 items-center gap-1 pl-3">
                 <Button

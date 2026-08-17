@@ -175,12 +175,77 @@
   הרקע הקיים (background-image מצטייר מעל background-color), כך
   שאותה תחושת לחיצה עובדת זהה על גבי ink, surface או surface-2 בלי
   צורך לבחור גוון אפור מתאים לכל מקום בנפרד.
+
+  hover מוגבל ל-(hover: hover) and (pointer: fine) — כלומר עכבר אמיתי
+  בלבד. בלי ההגבלה הזו, במסך מגע ה-hover "נתקע" אחרי הקשה (הדפדפן
+  מדמה hover ברגע הנגיעה ולא תמיד מנקה אותו עד הקשה הבאה במקום אחר).
 */
 @utility tap {
   transition: background-color 0.1s ease-out;
 
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
+    }
+  }
+
   &:active {
     background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+  }
+}
+
+/*
+  ארבע נקודות ספציפיות בממשק שצריכות משוב hover/active בצבע מסוים
+  ולא שכבת עמעום גנרית (כפתור ראשי, כפתור מסוכן, סטפר המספרים,
+  כפתור הוי). כתובות ידנית עם אותה הגבלת (hover: hover) — לא דרך
+  hover: של Tailwind, כי בגרסה הזו הוא לא מוגבל למכשירי עכבר
+  כברירת מחדל ונשאר "תקוע" רגע אחרי הקשה במסך מגע.
+*/
+@utility hover-volt {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: var(--color-volt-dim);
+    }
+  }
+  &:active {
+    background-color: var(--color-volt-dim);
+  }
+}
+
+@utility hover-danger-wash {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: #ff5a4e1a;
+    }
+  }
+  &:active {
+    background-color: #ff5a4e1a;
+  }
+}
+
+@utility hover-stepper {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: var(--color-line);
+      color: var(--color-volt);
+    }
+  }
+  &:active {
+    background-color: var(--color-line);
+    color: var(--color-volt);
+  }
+}
+
+@utility hover-check {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: var(--color-volt);
+      color: var(--color-volt);
+    }
+  }
+  &:active {
+    border-color: var(--color-volt);
+    color: var(--color-volt);
   }
 }
 
