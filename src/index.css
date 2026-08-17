@@ -194,6 +194,15 @@
   }
 }
 
+/* מסתיר את פס הגלילה של הדפדפן — לשימוש בשורות גלילה עם חץ מותאם אישית במקום. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /*
   ארבע נקודות ספציפיות בממשק שצריכות משוב hover/active בצבע מסוים
   ולא שכבת עמעום גנרית (כפתור ראשי, כפתור מסוכן, סטפר המספרים,

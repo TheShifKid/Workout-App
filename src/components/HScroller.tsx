@@ -2,12 +2,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { IconChevronLeft } from './icons';
 
 /**
- * שורה גוללת אופקית עם רמז ברור שיש עוד תוכן: דעיכה בקצה + חץ שגולל
- * בלחיצה. בלי זה (גלילה אילמת בלבד) קל לפספס שיש עוד קבוצות שריר
- * מעבר לקצה המסך.
+ * שורה גוללת אופקית עם רמז ברור שיש עוד תוכן: דעיכה בקצה + כפתור עגול
+ * שגולל בלחיצה. בלי זה (גלילה אילמת בלבד) קל לפספס שיש עוד קבוצות שריר
+ * מעבר לקצה המסך. פס הגלילה המובנה של הדפדפן מוסתר (no-scrollbar) —
+ * הכפתור המותאם הוא המנגנון היחיד שמוצג.
  *
  * ב-RTL הכיוונים הפוכים: "עוד תוכן" נמצא בצד שמאל (סוף ה-DOM), אז שם
- * מוצג החץ שגולל שמאלה. גלילה חזרה לתחילת הרשימה אפשרית מהצד הימני.
+ * מוצג הכפתור שגולל שמאלה. גלילה חזרה לתחילת הרשימה אפשרית מהצד הימני.
  */
 export function HScroller({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -41,37 +42,35 @@ export function HScroller({ children }: { children: ReactNode }) {
       <div
         ref={ref}
         onScroll={update}
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+        className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4"
       >
         {children}
       </div>
 
       {canScrollEnd && (
-        <>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-l from-surface to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-start bg-gradient-to-l from-surface via-surface/90 to-transparent">
           <button
             type="button"
             aria-label="גלול שמאלה לעוד קבוצות"
             onClick={() => scrollBy(-140)}
-            className="tap absolute inset-y-0 left-0 flex w-8 items-center justify-center text-body"
+            className="tap pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-surface-2 text-body shadow-hard"
           >
-            <IconChevronLeft className="h-5 w-5" />
+            <IconChevronLeft className="h-4 w-4" />
           </button>
-        </>
+        </div>
       )}
 
       {canScrollStart && (
-        <>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-r from-surface to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-12 items-center justify-end bg-gradient-to-r from-surface via-surface/90 to-transparent">
           <button
             type="button"
             aria-label="גלול ימינה לתחילת הרשימה"
             onClick={() => scrollBy(140)}
-            className="tap absolute inset-y-0 right-0 flex w-8 items-center justify-center rotate-180 text-body"
+            className="tap pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-surface-2 text-body shadow-hard"
           >
-            <IconChevronLeft className="h-5 w-5" />
+            <IconChevronLeft className="h-4 w-4 rotate-180" />
           </button>
-        </>
+        </div>
       )}
     </div>
   );
