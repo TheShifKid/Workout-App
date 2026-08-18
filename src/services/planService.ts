@@ -1,4 +1,4 @@
-import type { Equipment, ID, MuscleGroup } from '../db/types';
+import type { ID } from '../db/types';
 import {
   DEFAULT_REPS_MAX,
   DEFAULT_REPS_MIN,
@@ -6,7 +6,6 @@ import {
   DEFAULT_TARGET_SETS,
   WORKOUT_COLORS,
 } from '../lib/constants';
-import { exercisesRepo } from '../repositories/exercises.repo';
 import { workoutExercisesRepo } from '../repositories/workoutExercises.repo';
 import { workoutsRepo } from '../repositories/workouts.repo';
 
@@ -66,21 +65,3 @@ export function reorderPlan(orderedIds: ID[]): Promise<void> {
   return workoutExercisesRepo.reorder(orderedIds);
 }
 
-/** יצירת תרגיל חדש מתוך בורר התרגילים, בשורה אחת. */
-export function createExercise(
-  name: string,
-  muscleGroup: MuscleGroup,
-  equipment: Equipment,
-): Promise<ID> {
-  return exercisesRepo.create({
-    name: name.trim(),
-    muscleGroup,
-    equipment,
-    defaultNote: '',
-  });
-}
-
-/** ההערה הקבועה של התרגיל — מוצגת בכל אימון שבו הוא מופיע. */
-export function setExerciseDefaultNote(exerciseId: ID, defaultNote: string): Promise<number> {
-  return exercisesRepo.update(exerciseId, { defaultNote });
-}

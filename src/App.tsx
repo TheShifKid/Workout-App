@@ -7,6 +7,7 @@ import { HistoryScreen } from './screens/HistoryScreen';
 import { SessionDetailScreen } from './screens/SessionDetailScreen';
 import { ExerciseProgressScreen } from './screens/ExerciseProgressScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { ExerciseLibraryScreen } from './screens/ExerciseLibraryScreen';
 import { useDbStatus } from './hooks/useDbStatus';
 import { Button, Spinner } from './components/ui';
 
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="/workout/:workoutId/edit" element={<PlanEditorScreen />} />
         <Route path="/session/:sessionId" element={<ActiveSessionScreen />} />
         <Route path="/history/:sessionId" element={<SessionDetailScreen />} />
+        <Route path="/exercises" element={<ExerciseLibraryScreen />} />
         <Route path="/exercise/:exerciseId" element={<ExerciseProgressScreen />} />
       </Route>
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { IconDownload, IconTrash, IconUpload } from '../components/icons';
+import { IconChevronLeft, IconDownload, IconTrash, IconUpload } from '../components/icons';
 import { Button, ScreenHeader } from '../components/ui';
 import { TABLE_NAMES, type TableName } from '../db/types';
 import { seedIfEmpty } from '../db/seed';
@@ -27,6 +28,7 @@ const TABLE_LABELS: Record<TableName, string> = {
 };
 
 export function SettingsScreen() {
+  const navigate = useNavigate();
   const fileInput = useRef<HTMLInputElement>(null);
 
   const [message, setMessage] = useState<string | null>(null);
@@ -105,6 +107,17 @@ export function SettingsScreen() {
             {error}
           </p>
         )}
+
+        {/* מאגר תרגילים */}
+        <Section
+          title="מאגר התרגילים"
+          body="כל התרגילים הזמינים לבחירה, כולל אלה שיצרת בעצמך. אפשר לתקן שם או קבוצת שריר, ולהסתיר תרגילים שאתה לא עושה."
+        >
+          <Button full onClick={() => navigate('/exercises')}>
+            <IconChevronLeft className="h-5 w-5" />
+            נהל את מאגר התרגילים
+          </Button>
+        </Section>
 
         {/* ייצוא */}
         <Section title="גיבוי" body="קובץ JSON אחד עם כל הנתונים. שמור אותו בענן או שלח לעצמך.">

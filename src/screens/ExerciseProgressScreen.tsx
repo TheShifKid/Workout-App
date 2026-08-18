@@ -7,7 +7,7 @@ import { Button, Chip, EmptyState, IconButton, ScreenHeader, Spinner } from '../
 import type { ID } from '../db/types';
 import { useExercise, useExerciseProgress } from '../hooks/useData';
 import { formatDateLong, formatNumber, formatWeight, plural } from '../lib/format';
-import { setExerciseDefaultNote } from '../services/planService';
+import { setExerciseDefaultNote } from '../services/exerciseLibraryService';
 
 type Metric = 'topWeight' | 'oneRepMax';
 

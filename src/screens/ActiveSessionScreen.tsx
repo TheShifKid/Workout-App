@@ -17,7 +17,7 @@ import {
 } from '../hooks/useData';
 import { useNow } from '../hooks/useNow';
 import { formatDuration, formatNumber, plural } from '../lib/format';
-import { setExerciseDefaultNote } from '../services/planService';
+import { setExerciseDefaultNote } from '../services/exerciseLibraryService';
 import {
   addExerciseToSession,
   discardSession,

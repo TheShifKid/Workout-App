@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import type { Exercise, ID, Session, SessionExercise, SetLog, Workout } from '../db/types';
 import { exercisesRepo } from '../repositories/exercises.repo';
+import { isCustomExercise } from '../services/exerciseLibraryService';
 import { sessionExercisesRepo } from '../repositories/sessionExercises.repo';
 import { sessionsRepo } from '../repositories/sessions.repo';
 import { setLogsRepo } from '../repositories/setLogs.repo';
@@ -191,4 +192,50 @@ export function useSessionDetail(sessionId: ID | undefined) {
 
     return { session, snapshots, logs };
   }, [sessionId]);
+}
+
+export interface LibraryEntry {
+  exercise: Exercise;
+  /** נוצר ידנית ולא הגיע מהזריעה הראשונית. */
+  isCustom: boolean;
+  /** בכמה אימונים שונים התרגיל בוצע בפועל. */
+  sessionsPerformed: number;
+  /** בכמה תוכניות אימון הוא מופיע כרגע. */
+  inPlans: number;
+}
+
+/**
+ * מאגר התרגילים המלא (כולל מאורכבים) עם נתוני שימוש — הבסיס למסך
+ * ניהול המאגר. נתוני השימוש קובעים אם מותר למחוק תרגיל לצמיתות.
+ */
+export function useExerciseLibrary(): LibraryEntry[] | undefined {
+  return useLiveQuery(async () => {
+    const [exercises, logs, planRows] = await Promise.all([
+      exercisesRepo.all(),
+      db.setLogs.toArray(),
+      workoutExercisesRepo.all(),
+    ]);
+
+    const sessionsByExercise = new Map<ID, Set<ID>>();
+    for (const log of logs) {
+      if (log.isDone !== 1) continue;
+      const set = sessionsByExercise.get(log.exerciseId);
+      if (set) set.add(log.sessionId);
+      else sessionsByExercise.set(log.exerciseId, new Set([log.sessionId]));
+    }
+
+    const plansByExercise = new Map<ID, number>();
+    for (const row of planRows) {
+      plansByExercise.set(row.exerciseId, (plansByExercise.get(row.exerciseId) ?? 0) + 1);
+    }
+
+    return exercises
+      .map((exercise) => ({
+        exercise,
+        isCustom: isCustomExercise(exercise),
+        sessionsPerformed: sessionsByExercise.get(exercise.id)?.size ?? 0,
+        inPlans: plansByExercise.get(exercise.id) ?? 0,
+      }))
+      .sort((a, b) => a.exercise.name.localeCompare(b.exercise.name, 'he'));
+  }, []);
 }

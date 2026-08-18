@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { EQUIPMENT, MUSCLE_GROUPS, type Equipment, type ID, type MuscleGroup } from '../db/types';
 import { useActiveExercises } from '../hooks/useData';
-import { createExercise } from '../services/planService';
+import { createExercise } from '../services/exerciseLibraryService';
 import { IconPlus, IconSearch } from './icons';
 import { Sheet } from './Sheet';
 import { Button, Chip, EmptyState, Spinner } from './ui';
