@@ -3,7 +3,15 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+/**
+ * GitHub Pages מגיש אתר של ריפו תחת /<repo>/ ולא בשורש, אז כל הנכסים
+ * והניתוב חייבים לדעת את הקידומת. BASE נשלט ממשתנה סביבה כדי שאותו
+ * קוד יעבוד גם בפריסה בשורש (Vercel/Netlify) בלי שינוי.
+ */
+const BASE = process.env.VITE_BASE ?? '/';
+
 export default defineConfig({
+  base: BASE,
   plugins: [
     react(),
     tailwindcss(),
@@ -13,7 +21,7 @@ export default defineConfig({
       workbox: {
         // כל הנכסים נכנסים ל-precache כדי שהאפליקציה תעבוד לגמרי אופליין.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        navigateFallback: 'index.html',
+        navigateFallback: `${BASE}index.html`,
         cleanupOutdatedCaches: true,
       },
       manifest: {
@@ -22,8 +30,8 @@ export default defineConfig({
         description: 'יומן אימוני כוח אישי — עובד אופליין',
         lang: 'he',
         dir: 'rtl',
-        start_url: '/',
-        scope: '/',
+        start_url: BASE,
+        scope: BASE,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#0A0A0B',

@@ -7,6 +7,10 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { seedIfEmpty } from './db/seed';
 import './index.css';
 
+// import.meta.env.BASE_URL מגיע מ-vite base. הראוטר חייב להכיר את
+// הקידומת, אחרת כל הנתיבים יישברו בפריסה תחת תת-נתיב.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 // הזריעה רצה לפני הרינדור כדי שהמסך הראשון כבר יראה נתונים.
 seedIfEmpty()
   .catch((err) => console.error('זריעה ראשונית נכשלה', err))
@@ -14,7 +18,7 @@ seedIfEmpty()
     createRoot(document.getElementById('root')!).render(
       <StrictMode>
         <ErrorBoundary>
-          <BrowserRouter>
+          <BrowserRouter basename={basename}>
             <RestTimerProvider>
               <App />
             </RestTimerProvider>

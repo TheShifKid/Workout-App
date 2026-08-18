@@ -1,0 +1,56 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# פריסה אחת בכל רגע; דחיפה חדשה לא מבטלת פריסה שכבר רצה.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # GitHub Pages מגיש את האתר תחת /<repo>/ ולא בשורש.
+      - name: Build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      # Pages לא יודע לנתב SPA: בקשה ישירה ל-/history מחזירה 404.
+      # אותו index.html מוגש גם כדף ה-404, האפליקציה עולה וקוראת את
+      # הנתיב בעצמה — כך קישור עמוק עובד גם בטעינה קרה.
+      - name: SPA fallback
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
