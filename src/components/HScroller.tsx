@@ -3,13 +3,13 @@ import { IconChevronLeft } from './icons';
 
 /**
  * שורה גוללת אופקית עם רמז ברור שיש עוד תוכן: דעיכה בקצה + כפתור עגול
- * שגולל בלחיצה. בלי זה (גלילה אילמת בלבד) קל לפספס שיש עוד קבוצות שריר
- * מעבר לקצה המסך. פס הגלילה המובנה של הדפדפן מוסתר (no-scrollbar) —
- * הכפתור המותאם הוא המנגנון היחיד שמוצג.
+ * שגולל בלחיצה. פס הגלילה המובנה מוסתר (no-scrollbar) — הכפתור הוא
+ * המנגנון היחיד שמוצג.
  *
- * ב-RTL הכיוונים הפוכים: "עוד תוכן" נמצא בצד שמאל (סוף ה-DOM), אז שם
- * מוצג הכפתור שגולל שמאלה. גלילה חזרה לתחילת הרשימה אפשרית מהצד הימני.
+ * ב-RTL הכיוונים הפוכים: "עוד תוכן" נמצא בצד שמאל (סוף ה-DOM) ושם
+ * scrollLeft שלילי, אז שם מוצג הכפתור שגולל שמאלה.
  */
+
 export function HScroller({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const [canScrollStart, setCanScrollStart] = useState(false);
@@ -18,32 +18,44 @@ export function HScroller({ children }: { children: ReactNode }) {
   const update = () => {
     const el = ref.current;
     if (!el) return;
-    const { scrollLeft, scrollWidth, clientWidth } = el;
-    // בדפדפנים מודרניים ב-RTL, scrollLeft הוא 0 בתחילת הרשימה (מימין)
-    // ושלילי ככל שגוללים שמאלה לעבר סוף התוכן.
-    setCanScrollStart(scrollLeft < -1);
-    setCanScrollEnd(scrollLeft > -(scrollWidth - clientWidth) + 1);
+    const max = el.scrollWidth - el.clientWidth;
+    setCanScrollStart(el.scrollLeft < -1);
+    setCanScrollEnd(el.scrollLeft > -max + 1);
   };
 
+  // בלי מערך תלויות: רץ אחרי כל רינדור כדי לתפוס גם שינוי בתוכן (מספר
+  // הצ'יפים) ולא רק שינוי גודל. React מדלג על רינדור אם הערכים זהים.
+  useEffect(update);
+
   useEffect(() => {
-    update();
     const el = ref.current;
     if (!el) return;
     const observer = new ResizeObserver(update);
     observer.observe(el);
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [children]);
+  }, []);
 
-  const scrollBy = (delta: number) => ref.current?.scrollBy({ left: delta, behavior: 'smooth' });
+  /**
+   * גולל כמעט רוחב מסך שלם, כך ששתי לחיצות מכסות את כל הרשימה.
+   *
+   * השמה ישירה ל-scrollLeft במכוון, בלי behavior:'smooth' ובלי אנימציית
+   * requestAnimationFrame: שתיהן נמצאו לא-פעילות בחלק מהסביבות — הגלילה
+   * פשוט לא זזה, וחלק מהלחיצות "נבלעות" והכפתור נראה שבור. קפיצה מיידית
+   * פחות מרשימה אבל עובדת תמיד, וזה מה שחשוב בשורה קצרה כזו.
+   */
+  const page = (direction: -1 | 1) => {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollLeft += direction * el.clientWidth * 0.85;
+    update();
+  };
+
+  const arrowClass =
+    'tap pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-surface-2 text-body shadow-hard';
 
   return (
     <div className="relative">
-      <div
-        ref={ref}
-        onScroll={update}
-        className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4"
-      >
+      <div ref={ref} onScroll={update} className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
         {children}
       </div>
 
@@ -52,8 +64,8 @@ export function HScroller({ children }: { children: ReactNode }) {
           <button
             type="button"
             aria-label="גלול שמאלה לעוד קבוצות"
-            onClick={() => scrollBy(-140)}
-            className="tap pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-surface-2 text-body shadow-hard"
+            onClick={() => page(-1)}
+            className={arrowClass}
           >
             <IconChevronLeft className="h-4 w-4" />
           </button>
@@ -65,8 +77,8 @@ export function HScroller({ children }: { children: ReactNode }) {
           <button
             type="button"
             aria-label="גלול ימינה לתחילת הרשימה"
-            onClick={() => scrollBy(140)}
-            className="tap pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-surface-2 text-body shadow-hard"
+            onClick={() => page(1)}
+            className={arrowClass}
           >
             <IconChevronLeft className="h-4 w-4 rotate-180" />
           </button>
