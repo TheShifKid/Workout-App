@@ -48,6 +48,7 @@ export function NumberStepper({
   }, [value, focused]);
 
   const usingGhost = value === null && ghost !== null && ghost !== undefined;
+  const shown = focused ? text : toText(value) || (usingGhost ? toText(ghost) : '');
 
   const bump = (direction: 1 | -1) => {
     const base = value ?? ghost ?? 0;
@@ -100,19 +101,30 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center border-l border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-25"
+        className="flex w-10 shrink-0 items-center justify-center border-l border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-25"
       >
         <IconMinus className="h-5 w-5" />
       </button>
 
-      <div className="flex min-w-0 flex-1 items-center">
+      {/*
+        היחידה יושבת מתחת למספר ולא לצידו: במסך צר נשארים לשדה כ-32px
+        בלבד אחרי שני כפתורי ה-±, וזוג "45 ק״ג" באותה שורה פשוט נחתך.
+        למטה יש מקום פנוי, אז היחידה גלויה תמיד בלי לגזול רוחב מהמספר.
+      */}
+      <div
+        className="flex h-12 min-w-0 flex-1 flex-col items-center justify-center"
+        onClick={(e) => {
+          if (disabled) return;
+          (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus();
+        }}
+      >
         <input
           type="text"
           inputMode="decimal"
           enterKeyHint="done"
           aria-label={label}
           disabled={disabled}
-          value={focused ? text : (toText(value) || (usingGhost ? toText(ghost) : ''))}
+          value={shown}
           onFocus={(e) => {
             setFocused(true);
             setText(toText(value));
@@ -126,14 +138,12 @@ export function NumberStepper({
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
-          readOnly={disabled}
-          tabIndex={disabled ? -1 : undefined}
-          className={`tnum-hero h-12 min-w-0 flex-1 bg-transparent text-center text-xl outline-none ${
+          className={`tnum-hero w-full min-w-0 bg-transparent text-center text-xl leading-none outline-none ${
             usingGhost && !focused ? 'text-muted' : 'text-body'
           } ${disabled ? 'cursor-default' : ''}`}
         />
         {unit && (
-          <span className="shrink-0 pl-2 text-[10px] font-bold text-muted">{unit}</span>
+          <span className="mt-0.5 text-[9px] font-bold leading-none text-muted">{unit}</span>
         )}
       </div>
 
@@ -146,7 +156,7 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center border-r border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-25"
+        className="flex w-10 shrink-0 items-center justify-center border-r border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-25"
       >
         <IconPlus className="h-5 w-5" />
       </button>

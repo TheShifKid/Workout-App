@@ -129,7 +129,7 @@ export function SetRow({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {usesWeight && (
           <div className="min-w-0 flex-1">
             <NumberStepper
@@ -179,7 +179,7 @@ export function SetRow({
           onClick={onToggleDone}
           aria-pressed={done}
           aria-label={done ? `בטל סימון סט ${log.setNumber}` : `סמן סט ${log.setNumber} כבוצע`}
-          className={`flex h-12 w-14 shrink-0 items-center justify-center rounded-xl border-2 transition-colors ${
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 transition-colors ${
             done
               ? 'border-volt bg-volt text-ink'
               : 'border-line-strong bg-surface-2 text-muted hover-check'
