@@ -10,7 +10,7 @@ import { toLocalDateKey } from '../lib/format';
  * CURRENT_SCHEMA_VERSION — וגיבויים ישנים ימשיכו להיטען בלי לגעת בשאר הקוד.
  */
 
-export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_SCHEMA_VERSION = 3;
 const APP_SIGNATURE = 'workout-app';
 
 export interface BackupFile {
@@ -97,6 +97,30 @@ const MIGRATIONS: Record<number, Migration> = {
       })),
     },
   }),
+  // 2→3: 'time' פוצל ל-'time' (בלי משקל) ו-'weightTime'. תרגילי זמן
+  // מגיבוי ישן עשויים להכיל משקל, אז הם עוברים ל-weightTime כדי שלא
+  // ייעלם להם שדה שכבר נרשמו בו נתונים.
+  2: (backup) => {
+    const weighted = new Set(
+      (backup.data.setLogs as { exerciseId?: string; weight?: number | null }[])
+        .filter((l) => l && l.weight !== null && l.weight !== undefined)
+        .map((l) => l.exerciseId),
+    );
+    const upgrade = (row: unknown) => {
+      const r = row as { id?: string; exerciseId?: string; trackingType?: string };
+      if (r?.trackingType !== 'time') return row;
+      const key = r.exerciseId ?? r.id;
+      return weighted.has(key) ? { ...r, trackingType: 'weightTime' } : row;
+    };
+    return {
+      ...backup,
+      data: {
+        ...backup.data,
+        exercises: backup.data.exercises.map(upgrade),
+        sessionExercises: backup.data.sessionExercises.map(upgrade),
+      },
+    };
+  },
 };
 
 export function migrateBackup(raw: unknown): BackupFile {

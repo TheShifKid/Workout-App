@@ -2,11 +2,18 @@ import { useMemo, useState } from 'react';
 import {
   EQUIPMENT,
   MUSCLE_GROUPS,
+  TRACKING_TYPES,
   type Equipment,
   type ID,
   type MuscleGroup,
   type TrackingType,
 } from '../db/types';
+
+const TRACKING_LABEL: Record<TrackingType, string> = {
+  weight: 'משקל × חזרות',
+  time: 'זמן בלבד',
+  weightTime: 'משקל × זמן',
+};
 import { useActiveExercises } from '../hooks/useData';
 import { createExercise } from '../services/exerciseLibraryService';
 import { IconPlus, IconSearch } from './icons';
@@ -142,15 +149,18 @@ export function ExercisePicker({
               <IconPlus className="h-5 w-5" />
             </Button>
           </div>
-          <label className="mt-2 flex items-center gap-2 text-xs text-muted">
-            <input
-              type="checkbox"
-              checked={newTracking === 'time'}
-              onChange={(e) => setNewTracking(e.target.checked ? 'time' : 'weight')}
-              className="h-4 w-4 accent-[var(--color-volt)]"
-            />
-            נמדד בזמן (כמו פלאנק) ולא בחזרות
-          </label>
+          <select
+            value={newTracking}
+            onChange={(e) => setNewTracking(e.target.value as TrackingType)}
+            aria-label="שיטת מדידה"
+            className="mt-2 h-12 w-full rounded-xl border border-line bg-ink px-2 text-sm"
+          >
+            {TRACKING_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {TRACKING_LABEL[t]}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 

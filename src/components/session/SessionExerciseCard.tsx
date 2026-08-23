@@ -33,7 +33,9 @@ export function SessionExerciseCard({
   const { start } = useRestTimer();
   const [confirmRemove, setConfirmRemove] = useState(false);
 
-  const isTime = snapshot.trackingType === 'time';
+  const usesTime = snapshot.trackingType === 'time' || snapshot.trackingType === 'weightTime';
+  const usesWeight =
+    snapshot.trackingType === 'weight' || snapshot.trackingType === 'weightTime';
   const targetRange = formatRepRange(snapshot.targetRepsMin, snapshot.targetRepsMax);
   const sets = [...logs].sort((a, b) => a.setNumber - b.setNumber);
   const doneCount = sets.filter((s) => s.isDone === 1 && s.isWarmup === 0).length;
@@ -61,7 +63,7 @@ export function SessionExerciseCard({
           </Link>
           <p className="tnum text-xs text-muted">
             יעד {snapshot.targetSets} ×{' '}
-            {isTime
+            {usesTime
               ? `${formatRepRange(snapshot.targetRepsMin, snapshot.targetRepsMax)} שנ׳`
               : formatRepRange(snapshot.targetRepsMin, snapshot.targetRepsMax)}
             {' · '}
@@ -105,9 +107,9 @@ export function SessionExerciseCard({
         הוא שייך.
       */}
       <div className="flex items-center gap-2 px-4 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted">
-        <span className="min-w-0 flex-1 text-center">משקל</span>
+        {usesWeight && <span className="min-w-0 flex-1 text-center">משקל</span>}
         <span className="min-w-0 flex-1 text-center text-volt">
-          יעד {targetRange} {isTime ? 'שנ׳' : 'חז׳'}
+          יעד {targetRange} {usesTime ? 'שנ׳' : 'חז׳'}
         </span>
         <span className="w-14 shrink-0" />
       </div>

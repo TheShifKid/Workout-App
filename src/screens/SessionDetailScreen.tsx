@@ -127,10 +127,10 @@ export function SessionDetailScreen() {
                       </span>
                       <span className="flex-1">
                         {snapshot.trackingType === 'time'
-                          ? set.weight !== null
+                          ? formatDuration(set.durationSeconds ?? 0)
+                          : snapshot.trackingType === 'weightTime'
                             ? `${formatWeight(set.weight)} ק"ג × ${formatDuration(set.durationSeconds ?? 0)}`
-                            : formatDuration(set.durationSeconds ?? 0)
-                          : `${formatWeight(set.weight)} ק"ג × ${set.reps ?? '—'}`}
+                            : `${formatWeight(set.weight)} ק"ג × ${set.reps ?? '—'}`}
                       </span>
                       {set.isDone === 0 && <span className="text-xs text-muted">לא בוצע</span>}
                     </li>

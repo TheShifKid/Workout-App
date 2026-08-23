@@ -36,7 +36,9 @@ export function ExerciseProgressScreen() {
   }
 
   const { history, prs, chart } = progress;
-  const isTime = exercise.trackingType === 'time';
+  const isTime = exercise.trackingType === 'time' || exercise.trackingType === 'weightTime';
+  const usesWeight =
+    exercise.trackingType === 'weight' || exercise.trackingType === 'weightTime';
 
   return (
     <>
@@ -83,12 +85,20 @@ export function ExerciseProgressScreen() {
                     }
                   />
                   <PRCard
-                    title="המשקל הכבד ביותר"
-                    value={prs.heaviest ? `${formatWeight(prs.heaviest.weight)} ק"ג` : '—'}
+                    title={usesWeight ? 'המשקל הכבד ביותר' : 'סה״כ סטים'}
+                    value={
+                      usesWeight
+                        ? prs.heaviest
+                          ? `${formatWeight(prs.heaviest.weight)} ק"ג`
+                          : '—'
+                        : String(prs.totalSets)
+                    }
                     hint={
-                      prs.longestHold?.weight
-                        ? `בהחזקה הארוכה: ${formatWeight(prs.longestHold.weight)} ק"ג`
-                        : 'בלי משקל נוסף'
+                      usesWeight
+                        ? prs.longestHold?.weight
+                          ? `בהחזקה הארוכה: ${formatWeight(prs.longestHold.weight)} ק"ג`
+                          : undefined
+                        : 'תרגיל משקל גוף'
                     }
                   />
                 </>

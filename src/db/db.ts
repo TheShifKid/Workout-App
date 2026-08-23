@@ -8,8 +8,11 @@ import type {
   WorkoutExercise,
 } from './types';
 
-/** תרגילים זרועים שנמדדים בזמן — משמש גם בשדרוג גרסה 1→2. */
-export const TIME_BASED_SEED_IDS = new Set(['seed-plank', 'seed-farmers-carry']);
+/** תרגילים זרועים שאינם 'weight' — משמש גם בשדרוגי הגרסאות. */
+export const SEED_TRACKING_OVERRIDES: Record<string, 'time' | 'weightTime'> = {
+  'seed-plank': 'time',
+  'seed-farmers-carry': 'weightTime',
+};
 
 /**
  * מופע ה-Dexie היחיד באפליקציה.
@@ -50,7 +53,7 @@ export class WorkoutDB extends Dexie {
           .table('exercises')
           .toCollection()
           .modify((e) => {
-            e.trackingType = e.trackingType ?? (TIME_BASED_SEED_IDS.has(e.id) ? 'time' : 'weight');
+            e.trackingType = e.trackingType ?? SEED_TRACKING_OVERRIDES[e.id] ?? 'weight';
           });
         await tx
           .table('sessionExercises')
@@ -65,6 +68,21 @@ export class WorkoutDB extends Dexie {
             l.durationSeconds = l.durationSeconds ?? null;
           });
       });
+
+    /**
+     * גרסה 3: 'time' פוצל ל-'time' (זמן בלבד) ו-'weightTime' (משקל × זמן),
+     * כדי שפלאנק לא יציג שדה ק"ג. הליכת חווה עוברת ל-weightTime.
+     * צילומי המצב באימונים שכבר בוצעו לא נוגעים — ההיסטוריה לא משתנה.
+     */
+    this.version(3).upgrade(async (tx) => {
+      await tx
+        .table('exercises')
+        .toCollection()
+        .modify((e) => {
+          const override = SEED_TRACKING_OVERRIDES[e.id];
+          if (override) e.trackingType = override;
+        });
+    });
   }
 }
 

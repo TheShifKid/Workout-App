@@ -44,10 +44,12 @@ export function SetRow({
 
   const done = log.isDone === 1;
   const warmup = log.isWarmup === 1;
-  const isTime = trackingType === 'time';
+  // 'time' = זמן בלבד; 'weightTime' = משקל וגם זמן. בפלאנק אין ק"ג בכלל.
+  const usesTime = trackingType === 'time' || trackingType === 'weightTime';
+  const usesWeight = trackingType === 'weight' || trackingType === 'weightTime';
   const timing = activeSetLogId === log.id;
 
-  const previousText = describePrevious(prefill, isTime);
+  const previousText = describePrevious(prefill, usesTime, usesWeight);
 
   const toggleTimer = () => {
     if (timing) onCommitDuration(stop());
@@ -85,7 +87,7 @@ export function SetRow({
           </span>
         ) : (
           <>
-            {isTime && (
+            {usesTime && (
               <button
                 type="button"
                 onClick={toggleTimer}
@@ -128,21 +130,23 @@ export function SetRow({
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          <NumberStepper
-            value={log.weight}
-            ghost={prefill.weight}
-            step={WEIGHT_STEP}
-            max={999}
-            disabled={done}
-            label={`משקל בסט ${log.setNumber}`}
-            unit='ק"ג'
-            onCommit={onCommitWeight}
-          />
-        </div>
+        {usesWeight && (
+          <div className="min-w-0 flex-1">
+            <NumberStepper
+              value={log.weight}
+              ghost={prefill.weight}
+              step={WEIGHT_STEP}
+              max={999}
+              disabled={done}
+              label={`משקל בסט ${log.setNumber}`}
+              unit='ק"ג'
+              onCommit={onCommitWeight}
+            />
+          </div>
+        )}
 
         <div className="min-w-0 flex-1">
-          {isTime ? (
+          {usesTime ? (
             <NumberStepper
               // בזמן מדידה השדה מציג את הספירה החיה, וננעל כדי שלא יתנגש בה
               value={timing ? elapsedSeconds : log.durationSeconds}
@@ -188,9 +192,15 @@ export function SetRow({
   );
 }
 
-/** "קודם: 60 ק"ג × 8" / "קודם: 1:00" / "קודם: 20 ק"ג × 0:45" */
-function describePrevious(prefill: Prefill, isTime: boolean): string {
-  const { weight, reps, durationSeconds } = prefill;
+/**
+ * "קודם: 60 ק"ג × 8" / "קודם: 1:00" / "קודם: 20 ק"ג × 0:45"
+ *
+ * usesWeight מגיע מסוג התרגיל ולא מהנתון עצמו: תרגיל שעבר ל"זמן בלבד"
+ * עשוי לגרור משקל שנרשם לפני השינוי, ואין סיבה להציג אותו.
+ */
+function describePrevious(prefill: Prefill, isTime: boolean, usesWeight: boolean): string {
+  const { reps, durationSeconds } = prefill;
+  const weight = usesWeight ? prefill.weight : null;
   if (weight === null && reps === null && durationSeconds === null) return 'אין נתונים קודמים';
 
   const weightPart = weight !== null ? `${formatWeight(weight)} ק"ג` : '';

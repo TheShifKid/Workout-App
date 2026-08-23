@@ -30,7 +30,8 @@ import {
  */
 const TRACKING_LABEL: Record<TrackingType, string> = {
   weight: 'משקל × חזרות',
-  time: 'זמן (שניות)',
+  time: 'זמן בלבד — בלי משקל',
+  weightTime: 'משקל × זמן',
 };
 
 const inCount = (n: number, one: string, many: string) => (n === 1 ? `ב${one}` : `ב-${n} ${many}`);
@@ -152,7 +153,8 @@ export function ExerciseLibraryScreen() {
                     </span>
                     <span className="block truncate text-xs text-muted">
                       {entry.exercise.muscleGroup} · {entry.exercise.equipment}
-                      {entry.exercise.trackingType === 'time' && ' · לפי זמן'}
+                      {entry.exercise.trackingType !== 'weight' &&
+                        ` · ${TRACKING_LABEL[entry.exercise.trackingType]}`}
                       {entry.sessionsPerformed > 0 &&
                         ` · בוצע ${inCount(entry.sessionsPerformed, 'אימון אחד', 'אימונים')}`}
                     </span>
@@ -265,7 +267,8 @@ function EditExerciseSheet({
           ))}
         </select>
         <p className="mt-1 text-[11px] leading-relaxed text-muted">
-          ״זמן״ מתאים לתרגילים כמו פלאנק או הליכת חווה: במקום חזרות מזינים שניות.
+          ״זמן בלבד״ לפלאנק ותרגילי משקל גוף — בלי שדה ק"ג בכלל. ״משקל × זמן״ להליכת חווה
+          וכדומה, שבהם גם המשקל וגם המשך חשובים.
         </p>
 
         <p className="tnum mt-3 text-xs text-muted">

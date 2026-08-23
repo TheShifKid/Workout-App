@@ -23,11 +23,15 @@ export const MUSCLE_GROUPS = [
 export type MuscleGroup = (typeof MUSCLE_GROUPS)[number];
 
 /**
- * איך נמדד תרגיל: ברוב התרגילים משקל × חזרות, אבל תרגילים כמו פלאנק
- * או הליכת חווה נמדדים בזמן. הבחירה משנה את שדות הקלט, את "הפעם
- * הקודמת" ואת חישוב השיאים.
+ * איך נמדד תרגיל:
+ *  weight     — משקל × חזרות (רוב התרגילים)
+ *  time       — זמן בלבד, בלי משקל (פלאנק, משקל גוף)
+ *  weightTime — משקל × זמן (הליכת חווה, פלאנק בתוספת צלחת)
+ *
+ * הבחירה קובעת אילו שדות מוצגים בכלל: לתרגיל 'time' אין שדה משקל,
+ * כי משקל בפלאנק הוא סתם רעש על המסך.
  */
-export const TRACKING_TYPES = ['weight', 'time'] as const;
+export const TRACKING_TYPES = ['weight', 'time', 'weightTime'] as const;
 export type TrackingType = (typeof TRACKING_TYPES)[number];
 
 export const EQUIPMENT = [
