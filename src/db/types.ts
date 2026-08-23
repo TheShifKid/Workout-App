@@ -22,6 +22,14 @@ export const MUSCLE_GROUPS = [
 ] as const;
 export type MuscleGroup = (typeof MUSCLE_GROUPS)[number];
 
+/**
+ * איך נמדד תרגיל: ברוב התרגילים משקל × חזרות, אבל תרגילים כמו פלאנק
+ * או הליכת חווה נמדדים בזמן. הבחירה משנה את שדות הקלט, את "הפעם
+ * הקודמת" ואת חישוב השיאים.
+ */
+export const TRACKING_TYPES = ['weight', 'time'] as const;
+export type TrackingType = (typeof TRACKING_TYPES)[number];
+
 export const EQUIPMENT = [
   'מוט',
   'משקולות יד',
@@ -42,6 +50,8 @@ export interface Exercise {
   /** הערה קבועה שמוצגת בכל פעם שמבצעים את התרגיל. */
   defaultNote: string;
   isArchived: Flag;
+  /** 'weight' = משקל × חזרות, 'time' = משקל (אופציונלי) × שניות. */
+  trackingType: TrackingType;
 }
 
 /** סוג אימון בתוכנית ("דחיפה", "משיכה"...). */
@@ -97,6 +107,8 @@ export interface SessionExercise {
   note: string;
   /** שם התרגיל כפי שהיה — כדי שההיסטוריה תישאר קריאה גם אחרי שינוי שם. */
   exerciseName: string;
+  /** צילום מצב של שיטת המדידה, כדי שההיסטוריה לא תשתנה אם התרגיל יעודכן. */
+  trackingType: TrackingType;
 }
 
 /** סט בודד שנרשם באימון. */
@@ -106,7 +118,10 @@ export interface SetLog {
   exerciseId: ID;
   setNumber: number;
   weight: number | null;
+  /** חזרות — רלוונטי לתרגילי משקל. null בתרגילי זמן. */
   reps: number | null;
+  /** משך בשניות — רלוונטי לתרגילי זמן. null בתרגילי משקל. */
+  durationSeconds: number | null;
   isWarmup: Flag;
   /** רק סט מסומן נחשב כבוצע — לסטטיסטיקות ול"פעם הקודמת". */
   isDone: Flag;

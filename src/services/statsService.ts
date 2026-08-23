@@ -69,6 +69,8 @@ export async function getExerciseHistory(exerciseId: ID): Promise<ExerciseSessio
 }
 
 export interface ExercisePRs {
+  /** ההחזקה הארוכה ביותר — רלוונטי לתרגילי זמן. */
+  longestHold: { seconds: number; weight: number | null; date: string } | null;
   /** המשקל הכבד ביותר שהורם אי פעם. */
   heaviest: { weight: number; reps: number; date: string } | null;
   /** ה-1RM המשוער הגבוה ביותר — לוקח בחשבון גם משקל וגם חזרות. */
@@ -78,6 +80,7 @@ export interface ExercisePRs {
 }
 
 export function computePRs(history: ExerciseSessionEntry[]): ExercisePRs {
+  let longestHold: ExercisePRs['longestHold'] = null;
   let heaviest: ExercisePRs['heaviest'] = null;
   let bestOneRepMax: ExercisePRs['bestOneRepMax'] = null;
   let totalSets = 0;
@@ -88,6 +91,11 @@ export function computePRs(history: ExerciseSessionEntry[]): ExercisePRs {
     totalVolume += entry.volume;
 
     for (const set of entry.sets) {
+      const seconds = set.durationSeconds ?? 0;
+      if (seconds > 0 && (!longestHold || seconds > longestHold.seconds)) {
+        longestHold = { seconds, weight: set.weight, date: entry.session.date };
+      }
+
       const weight = set.weight ?? 0;
       const reps = set.reps ?? 0;
       if (!weight || !reps) continue;
@@ -103,7 +111,7 @@ export function computePRs(history: ExerciseSessionEntry[]): ExercisePRs {
     }
   }
 
-  return { heaviest, bestOneRepMax, totalSets, totalVolume };
+  return { longestHold, heaviest, bestOneRepMax, totalSets, totalVolume };
 }
 
 export interface ChartPoint {

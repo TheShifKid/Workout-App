@@ -17,7 +17,6 @@ export function NumberStepper({
   max = 9999,
   decimals = 2,
   label,
-  suffix,
   disabled,
   onCommit,
 }: {
@@ -28,7 +27,7 @@ export function NumberStepper({
   max?: number;
   decimals?: number;
   label: string;
-  suffix?: string;
+  /** נעול: מוצג לקריאה בלבד ולא ניתן לשינוי (סט שכבר סומן כבוצע). */
   disabled?: boolean;
   onCommit: (next: number | null) => void;
 }) {
@@ -51,6 +50,7 @@ export function NumberStepper({
   };
 
   const startRepeat = (direction: 1 | -1) => {
+    if (disabled) return;
     bump(direction);
     stopRepeat();
     repeatRef.current.timeout = window.setTimeout(() => {
@@ -93,12 +93,12 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center border-l border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-30"
+        className="flex w-11 shrink-0 items-center justify-center border-l border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-25"
       >
         <IconMinus className="h-5 w-5" />
       </button>
 
-      <div className="relative flex min-w-0 flex-1 items-center">
+      <div className="flex min-w-0 flex-1 items-center">
         <input
           type="text"
           inputMode="decimal"
@@ -119,15 +119,12 @@ export function NumberStepper({
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
+          readOnly={disabled}
+          tabIndex={disabled ? -1 : undefined}
           className={`tnum-hero h-12 w-full bg-transparent text-center text-xl outline-none ${
             usingGhost && !focused ? 'text-muted' : 'text-body'
-          }`}
+          } ${disabled ? 'cursor-default' : ''}`}
         />
-        {suffix && (
-          <span className="pointer-events-none absolute left-2 text-[10px] font-bold uppercase tracking-wide text-muted">
-            {suffix}
-          </span>
-        )}
       </div>
 
       <button
@@ -139,7 +136,7 @@ export function NumberStepper({
         onPointerLeave={stopRepeat}
         onPointerCancel={stopRepeat}
         onContextMenu={(e) => e.preventDefault()}
-        className="flex w-11 shrink-0 items-center justify-center border-r border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-30"
+        className="flex w-11 shrink-0 items-center justify-center border-r border-line-strong bg-surface-2 text-muted hover-stepper disabled:opacity-25"
       >
         <IconPlus className="h-5 w-5" />
       </button>

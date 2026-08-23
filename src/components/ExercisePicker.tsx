@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react';
-import { EQUIPMENT, MUSCLE_GROUPS, type Equipment, type ID, type MuscleGroup } from '../db/types';
+import {
+  EQUIPMENT,
+  MUSCLE_GROUPS,
+  type Equipment,
+  type ID,
+  type MuscleGroup,
+  type TrackingType,
+} from '../db/types';
 import { useActiveExercises } from '../hooks/useData';
 import { createExercise } from '../services/exerciseLibraryService';
 import { IconPlus, IconSearch } from './icons';
@@ -30,6 +37,7 @@ export function ExercisePicker({
   const [group, setGroup] = useState<MuscleGroup | null>(null);
   const [newGroup, setNewGroup] = useState<MuscleGroup>('חזה');
   const [newEquipment, setNewEquipment] = useState<Equipment>('מוט');
+  const [newTracking, setNewTracking] = useState<TrackingType>('weight');
 
   const excluded = useMemo(() => new Set(excludeIds), [excludeIds]);
   const trimmed = query.trim();
@@ -61,7 +69,7 @@ export function ExercisePicker({
   };
 
   const createAndPick = async () => {
-    const id = await createExercise(trimmed, newGroup, newEquipment);
+    const id = await createExercise(trimmed, newGroup, newEquipment, newTracking);
     await pick(id);
   };
 
@@ -134,6 +142,15 @@ export function ExercisePicker({
               <IconPlus className="h-5 w-5" />
             </Button>
           </div>
+          <label className="mt-2 flex items-center gap-2 text-xs text-muted">
+            <input
+              type="checkbox"
+              checked={newTracking === 'time'}
+              onChange={(e) => setNewTracking(e.target.checked ? 'time' : 'weight')}
+              className="h-4 w-4 accent-[var(--color-volt)]"
+            />
+            נמדד בזמן (כמו פלאנק) ולא בחזרות
+          </label>
         </div>
       )}
 

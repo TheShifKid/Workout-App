@@ -126,7 +126,11 @@ export function SessionDetailScreen() {
                         {set.isWarmup === 1 ? 'ח' : set.setNumber}
                       </span>
                       <span className="flex-1">
-                        {formatWeight(set.weight)} ק"ג × {set.reps ?? '—'}
+                        {snapshot.trackingType === 'time'
+                          ? set.weight !== null
+                            ? `${formatWeight(set.weight)} ק"ג × ${formatDuration(set.durationSeconds ?? 0)}`
+                            : formatDuration(set.durationSeconds ?? 0)
+                          : `${formatWeight(set.weight)} ק"ג × ${set.reps ?? '—'}`}
                       </span>
                       {set.isDone === 0 && <span className="text-xs text-muted">לא בוצע</span>}
                     </li>

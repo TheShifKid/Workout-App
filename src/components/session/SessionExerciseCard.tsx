@@ -33,6 +33,8 @@ export function SessionExerciseCard({
   const { start } = useRestTimer();
   const [confirmRemove, setConfirmRemove] = useState(false);
 
+  const isTime = snapshot.trackingType === 'time';
+  const targetRange = formatRepRange(snapshot.targetRepsMin, snapshot.targetRepsMax);
   const sets = [...logs].sort((a, b) => a.setNumber - b.setNumber);
   const doneCount = sets.filter((s) => s.isDone === 1 && s.isWarmup === 0).length;
   const workingCount = sets.filter((s) => s.isWarmup === 0).length;
@@ -58,7 +60,10 @@ export function SessionExerciseCard({
             <IconChart className="h-4 w-4 shrink-0 text-muted" />
           </Link>
           <p className="tnum text-xs text-muted">
-            יעד {snapshot.targetSets} × {formatRepRange(snapshot.targetRepsMin, snapshot.targetRepsMax)}
+            יעד {snapshot.targetSets} ×{' '}
+            {isTime
+              ? `${formatRepRange(snapshot.targetRepsMin, snapshot.targetRepsMax)} שנ׳`
+              : formatRepRange(snapshot.targetRepsMin, snapshot.targetRepsMax)}
             {' · '}
             {doneCount}/{workingCount} סטים
             {previous && ` · פעם קודמת ${formatRelativeDay(previous.session.startedAt)}`}
@@ -94,15 +99,30 @@ export function SessionExerciseCard({
         </div>
       )}
 
+      {/*
+        כותרות עמודות: היחידות עברו לכאן מתוך שדות הקלט, שם הן הודפסו
+        מעל המספר עצמו. כאן גם מוצג טווח החזרות המתוכנן, בדיוק ליד
+        המקום שבו מקלידים אותו.
+      */}
+      <div className="flex items-center gap-2 px-4 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted">
+        <span className="min-w-0 flex-1 text-center">משקל · ק״ג</span>
+        <span className="min-w-0 flex-1 text-center">
+          {isTime ? `שניות · יעד ${targetRange}` : `חזרות · יעד ${targetRange}`}
+        </span>
+        <span className="w-14 shrink-0" />
+      </div>
+
       <ul className="flex flex-col gap-2 p-2">
         {sets.map((log) => (
           <SetRow
             key={log.id}
             log={log}
             prefill={prefillForSet(previous, log.setNumber)}
+            trackingType={snapshot.trackingType}
             canRemove={sets.length > 1}
             onCommitWeight={(v) => updateSet(log.id, { weight: v })}
             onCommitReps={(v) => updateSet(log.id, { reps: v })}
+            onCommitDuration={(v) => updateSet(log.id, { durationSeconds: v })}
             onToggleWarmup={() => updateSet(log.id, { isWarmup: log.isWarmup === 1 ? 0 : 1 })}
             onToggleDone={() => toggleDone(log)}
             onRemove={() => removeSet(log.id)}

@@ -1,4 +1,5 @@
 import { db } from './db';
+import { TIME_BASED_SEED_IDS } from './db';
 import type { Equipment, Exercise, MuscleGroup } from './types';
 
 /**
@@ -103,6 +104,7 @@ export async function seedIfEmpty(): Promise<void> {
       equipment,
       defaultNote: '',
       isArchived: 0,
+      trackingType: TIME_BASED_SEED_IDS.has(seedExerciseId(slug)) ? 'time' : 'weight',
     }),
   );
 

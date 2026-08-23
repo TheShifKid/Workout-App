@@ -1,44 +1,48 @@
-import { IconCheck, IconTrash } from '../icons';
+import { IconCheck, IconLock, IconTrash } from '../icons';
 import { NumberStepper } from '../NumberStepper';
-import type { SetLog } from '../../db/types';
+import type { SetLog, TrackingType } from '../../db/types';
 import { REPS_STEP, WEIGHT_STEP } from '../../lib/constants';
-import { formatWeight } from '../../lib/format';
+import { formatDuration, formatWeight } from '../../lib/format';
+import type { Prefill } from '../../services/historyService';
 
 /**
  * שורת סט אחת — היחידה שהכי הרבה נוגעים בה באמצע אימון.
  *
  * שורה עליונה: מספר הסט, מה עשית בפעם הקודמת, וכפתורי חימום/מחיקה.
- * שורה תחתונה: משקל, חזרות, וי.
+ * שורה תחתונה: משקל, חזרות (או שניות), וי.
  *
- * חימום (כתום/להבה) ובוצע (ליים) מקבלים שני צבעים שונים לגמרי —
- * כדי שאף פעם אי אפשר לבלבל בין "לא נספר בסטטיסטיקה" לבין "בוצע".
+ * סט שסומן כבוצע (ירוק) ננעל לעריכה: באמצע גלילה ביד אחת קל מאוד
+ * להיתקל בכפתור ± ולשנות בטעות משקל שכבר נרשם. לחיצה על הוי מבטלת
+ * את הסימון ומחזירה את השדות לעריכה.
  */
 export function SetRow({
   log,
   prefill,
+  trackingType,
   canRemove,
   onCommitWeight,
   onCommitReps,
+  onCommitDuration,
   onToggleWarmup,
   onToggleDone,
   onRemove,
 }: {
   log: SetLog;
-  prefill: { weight: number | null; reps: number | null };
+  prefill: Prefill;
+  trackingType: TrackingType;
   canRemove: boolean;
   onCommitWeight: (v: number | null) => void;
   onCommitReps: (v: number | null) => void;
+  onCommitDuration: (v: number | null) => void;
   onToggleWarmup: () => void;
   onToggleDone: () => void;
   onRemove: () => void;
 }) {
   const done = log.isDone === 1;
   const warmup = log.isWarmup === 1;
+  const isTime = trackingType === 'time';
 
-  const previousText =
-    prefill.weight !== null || prefill.reps !== null
-      ? `קודם: ${formatWeight(prefill.weight)} ק"ג × ${prefill.reps ?? '—'}`
-      : 'אין נתונים קודמים';
+  const previousText = describePrevious(prefill, isTime);
 
   return (
     <li
@@ -61,26 +65,36 @@ export function SetRow({
 
         <span className="tnum min-w-0 flex-1 truncate text-xs text-muted">{previousText}</span>
 
-        <button
-          type="button"
-          onClick={onToggleWarmup}
-          aria-pressed={warmup}
-          className={`shrink-0 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors ${
-            warmup ? 'bg-flame/15 text-flame' : 'tap text-muted'
-          }`}
-        >
-          חימום
-        </button>
+        {done ? (
+          // סט נעול: מסבירים למה אי אפשר לערוך, במקום להשאיר כפתורים מתים
+          <span className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-bold text-volt">
+            <IconLock className="h-3.5 w-3.5" />
+            נעול
+          </span>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={onToggleWarmup}
+              aria-pressed={warmup}
+              className={`shrink-0 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors ${
+                warmup ? 'bg-flame/15 text-flame' : 'tap text-muted'
+              }`}
+            >
+              חימום
+            </button>
 
-        <button
-          type="button"
-          onClick={onRemove}
-          disabled={!canRemove}
-          aria-label={`מחק סט ${log.setNumber}`}
-          className="tap shrink-0 rounded-md p-1.5 text-muted disabled:opacity-25"
-        >
-          <IconTrash className="h-4 w-4" />
-        </button>
+            <button
+              type="button"
+              onClick={onRemove}
+              disabled={!canRemove}
+              aria-label={`מחק סט ${log.setNumber}`}
+              className="tap shrink-0 rounded-md p-1.5 text-muted disabled:opacity-25"
+            >
+              <IconTrash className="h-4 w-4" />
+            </button>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -90,23 +104,36 @@ export function SetRow({
             ghost={prefill.weight}
             step={WEIGHT_STEP}
             max={999}
+            disabled={done}
             label={`משקל בסט ${log.setNumber}`}
-            suffix='ק"ג'
             onCommit={onCommitWeight}
           />
         </div>
 
         <div className="min-w-0 flex-1">
-          <NumberStepper
-            value={log.reps}
-            ghost={prefill.reps}
-            step={REPS_STEP}
-            max={999}
-            decimals={0}
-            label={`חזרות בסט ${log.setNumber}`}
-            suffix="חז׳"
-            onCommit={onCommitReps}
-          />
+          {isTime ? (
+            <NumberStepper
+              value={log.durationSeconds}
+              ghost={prefill.durationSeconds}
+              step={5}
+              max={7200}
+              decimals={0}
+              disabled={done}
+              label={`שניות בסט ${log.setNumber}`}
+              onCommit={onCommitDuration}
+            />
+          ) : (
+            <NumberStepper
+              value={log.reps}
+              ghost={prefill.reps}
+              step={REPS_STEP}
+              max={999}
+              decimals={0}
+              disabled={done}
+              label={`חזרות בסט ${log.setNumber}`}
+              onCommit={onCommitReps}
+            />
+          )}
         </div>
 
         <button
@@ -125,4 +152,19 @@ export function SetRow({
       </div>
     </li>
   );
+}
+
+/** "קודם: 60 ק"ג × 8" / "קודם: 1:00" / "קודם: 20 ק"ג × 0:45" */
+function describePrevious(prefill: Prefill, isTime: boolean): string {
+  const { weight, reps, durationSeconds } = prefill;
+  if (weight === null && reps === null && durationSeconds === null) return 'אין נתונים קודמים';
+
+  const weightPart = weight !== null ? `${formatWeight(weight)} ק"ג` : '';
+
+  if (isTime) {
+    const timePart = durationSeconds !== null ? formatDuration(durationSeconds) : '—';
+    return weightPart ? `קודם: ${weightPart} × ${timePart}` : `קודם: ${timePart}`;
+  }
+
+  return `קודם: ${weightPart || '—'} × ${reps ?? '—'}`;
 }

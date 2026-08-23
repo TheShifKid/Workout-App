@@ -10,7 +10,7 @@ import { toLocalDateKey } from '../lib/format';
  * CURRENT_SCHEMA_VERSION — וגיבויים ישנים ימשיכו להיטען בלי לגעת בשאר הקוד.
  */
 
-export const CURRENT_SCHEMA_VERSION = 1;
+export const CURRENT_SCHEMA_VERSION = 2;
 const APP_SIGNATURE = 'workout-app';
 
 export interface BackupFile {
@@ -75,9 +75,29 @@ type Migration = (backup: BackupFile) => BackupFile;
 
 /**
  * MIGRATIONS[n] ממיר גיבוי מגרסה n לגרסה n+1.
- * כרגע ריק — גרסה 1 היא הראשונה.
  */
-const MIGRATIONS: Record<number, Migration> = {};
+const MIGRATIONS: Record<number, Migration> = {
+  // 1→2: נוספו תרגילים מבוססי זמן. גיבוי ישן לא מכיר trackingType או
+  // durationSeconds, אז משלימים ברירות מחדל שמשמרות בדיוק את ההתנהגות הקודמת.
+  1: (backup) => ({
+    ...backup,
+    data: {
+      ...backup.data,
+      exercises: backup.data.exercises.map((e) => ({
+        trackingType: 'weight',
+        ...(e as object),
+      })),
+      sessionExercises: backup.data.sessionExercises.map((e) => ({
+        trackingType: 'weight',
+        ...(e as object),
+      })),
+      setLogs: backup.data.setLogs.map((l) => ({
+        durationSeconds: null,
+        ...(l as object),
+      })),
+    },
+  }),
+};
 
 export function migrateBackup(raw: unknown): BackupFile {
   const backup = parseBackup(raw);

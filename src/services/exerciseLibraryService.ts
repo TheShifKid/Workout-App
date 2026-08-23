@@ -1,5 +1,5 @@
 import { db } from '../db/db';
-import type { Equipment, Exercise, ID, MuscleGroup } from '../db/types';
+import type { Equipment, Exercise, ID, MuscleGroup, TrackingType } from '../db/types';
 import { exercisesRepo } from '../repositories/exercises.repo';
 
 /**
@@ -16,18 +16,25 @@ export function createExercise(
   name: string,
   muscleGroup: MuscleGroup,
   equipment: Equipment,
+  trackingType: TrackingType = 'weight',
 ): Promise<ID> {
   return exercisesRepo.create({
     name: name.trim(),
     muscleGroup,
     equipment,
     defaultNote: '',
+    trackingType,
   });
 }
 
 export function updateExercise(
   id: ID,
-  changes: { name?: string; muscleGroup?: MuscleGroup; equipment?: Equipment },
+  changes: {
+    name?: string;
+    muscleGroup?: MuscleGroup;
+    equipment?: Equipment;
+    trackingType?: TrackingType;
+  },
 ): Promise<number> {
   const trimmed = changes.name?.trim();
   return exercisesRepo.update(id, {

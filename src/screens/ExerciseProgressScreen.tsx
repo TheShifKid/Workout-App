@@ -6,7 +6,7 @@ import { Sheet } from '../components/Sheet';
 import { Button, Chip, EmptyState, IconButton, ScreenHeader, Spinner } from '../components/ui';
 import type { ID } from '../db/types';
 import { useExercise, useExerciseProgress } from '../hooks/useData';
-import { formatDateLong, formatNumber, formatWeight, plural } from '../lib/format';
+import { formatDateLong, formatDuration, formatNumber, formatWeight, plural } from '../lib/format';
 import { setExerciseDefaultNote } from '../services/exerciseLibraryService';
 
 type Metric = 'topWeight' | 'oneRepMax';
@@ -36,6 +36,7 @@ export function ExerciseProgressScreen() {
   }
 
   const { history, prs, chart } = progress;
+  const isTime = exercise.trackingType === 'time';
 
   return (
     <>
@@ -72,30 +73,53 @@ export function ExerciseProgressScreen() {
           <>
             {/* שיאים */}
             <section className="grid grid-cols-2 gap-3">
-              <PRCard
-                title="המשקל הכבד ביותר"
-                value={prs.heaviest ? `${formatWeight(prs.heaviest.weight)} ק"ג` : '—'}
-                hint={
-                  prs.heaviest
-                    ? `${prs.heaviest.reps} חזרות · ${formatDateLong(prs.heaviest.date)}`
-                    : undefined
-                }
-              />
-              <PRCard
-                title="1RM משוער"
-                value={prs.bestOneRepMax ? `${formatWeight(prs.bestOneRepMax.value)} ק"ג` : '—'}
-                hint={
-                  prs.bestOneRepMax
-                    ? `מ-${formatWeight(prs.bestOneRepMax.weight)} × ${prs.bestOneRepMax.reps}`
-                    : undefined
-                }
-              />
+              {isTime ? (
+                <>
+                  <PRCard
+                    title="ההחזקה הארוכה ביותר"
+                    value={prs.longestHold ? formatDuration(prs.longestHold.seconds) : '—'}
+                    hint={
+                      prs.longestHold ? formatDateLong(prs.longestHold.date) : undefined
+                    }
+                  />
+                  <PRCard
+                    title="המשקל הכבד ביותר"
+                    value={prs.heaviest ? `${formatWeight(prs.heaviest.weight)} ק"ג` : '—'}
+                    hint={
+                      prs.longestHold?.weight
+                        ? `בהחזקה הארוכה: ${formatWeight(prs.longestHold.weight)} ק"ג`
+                        : 'בלי משקל נוסף'
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <PRCard
+                    title="המשקל הכבד ביותר"
+                    value={prs.heaviest ? `${formatWeight(prs.heaviest.weight)} ק"ג` : '—'}
+                    hint={
+                      prs.heaviest
+                        ? `${prs.heaviest.reps} חזרות · ${formatDateLong(prs.heaviest.date)}`
+                        : undefined
+                    }
+                  />
+                  <PRCard
+                    title="1RM משוער"
+                    value={prs.bestOneRepMax ? `${formatWeight(prs.bestOneRepMax.value)} ק"ג` : '—'}
+                    hint={
+                      prs.bestOneRepMax
+                        ? `מ-${formatWeight(prs.bestOneRepMax.weight)} × ${prs.bestOneRepMax.reps}`
+                        : undefined
+                    }
+                  />
+                </>
+              )}
             </section>
 
             <p className="tnum text-xs text-muted">
               {plural(history.length, 'אימון אחד', 'אימונים')} ·{' '}
-              {plural(prs.totalSets, 'סט אחד', 'סטים')} · נפח מצטבר{' '}
-              {formatNumber(prs.totalVolume)} ק"ג
+              {plural(prs.totalSets, 'סט אחד', 'סטים')}
+              {!isTime && ` · נפח מצטבר ${formatNumber(prs.totalVolume)} ק"ג`}
             </p>
 
             {/* גרף */}
@@ -141,11 +165,29 @@ export function ExerciseProgressScreen() {
                     <div className="tnum flex flex-wrap gap-x-3 gap-y-1 px-3 py-2 text-sm">
                       {entry.sets.map((set) => (
                         <span key={set.id} className="text-muted">
-                          <span className="font-semibold text-body">
-                            {formatWeight(set.weight)}
-                          </span>
-                          {' × '}
-                          {set.reps ?? '—'}
+                          {isTime ? (
+                            <>
+                              {set.weight !== null && (
+                                <>
+                                  <span className="font-semibold text-body">
+                                    {formatWeight(set.weight)}
+                                  </span>
+                                  {' × '}
+                                </>
+                              )}
+                              <span className="font-semibold text-body">
+                                {formatDuration(set.durationSeconds ?? 0)}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="font-semibold text-body">
+                                {formatWeight(set.weight)}
+                              </span>
+                              {' × '}
+                              {set.reps ?? '—'}
+                            </>
+                          )}
                         </span>
                       ))}
                     </div>

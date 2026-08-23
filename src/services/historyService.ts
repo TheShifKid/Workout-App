@@ -77,12 +77,24 @@ export async function getPreviousPerformanceMany(
  * סט מס' N נטען מסט העבודה מס' N של הפעם הקודמת; סטים נוספים מעבר
  * למה שהיה אז — נטענים מהסט האחרון.
  */
+export interface Prefill {
+  weight: number | null;
+  reps: number | null;
+  durationSeconds: number | null;
+}
+
 export function prefillForSet(
   previous: PreviousPerformance | null | undefined,
   setNumber: number,
-): { weight: number | null; reps: number | null } {
-  if (!previous || previous.sets.length === 0) return { weight: null, reps: null };
+): Prefill {
+  const empty: Prefill = { weight: null, reps: null, durationSeconds: null };
+  if (!previous || previous.sets.length === 0) return empty;
   const index = Math.min(setNumber, previous.sets.length) - 1;
   const source = previous.sets[Math.max(0, index)];
-  return { weight: source?.weight ?? null, reps: source?.reps ?? null };
+  if (!source) return empty;
+  return {
+    weight: source.weight ?? null,
+    reps: source.reps ?? null,
+    durationSeconds: source.durationSeconds ?? null,
+  };
 }

@@ -5,7 +5,15 @@ import { HScroller } from '../components/HScroller';
 import { IconChart, IconPlus, IconSearch, IconTrash } from '../components/icons';
 import { Sheet } from '../components/Sheet';
 import { Button, Chip, EmptyState, ScreenHeader, Spinner } from '../components/ui';
-import { EQUIPMENT, MUSCLE_GROUPS, type Equipment, type ID, type MuscleGroup } from '../db/types';
+import {
+  EQUIPMENT,
+  MUSCLE_GROUPS,
+  TRACKING_TYPES,
+  type Equipment,
+  type ID,
+  type MuscleGroup,
+  type TrackingType,
+} from '../db/types';
 import { useExerciseLibrary, type LibraryEntry } from '../hooks/useData';
 import { plural } from '../lib/format';
 import {
@@ -20,6 +28,11 @@ import {
  * ניסוח "בתוכנית אחת" / "ב-3 תוכניות" — בעברית תחילית ב' נדבקת למילה
  * ביחיד, ומופרדת במקף כשקודם לה מספר.
  */
+const TRACKING_LABEL: Record<TrackingType, string> = {
+  weight: 'משקל × חזרות',
+  time: 'זמן (שניות)',
+};
+
 const inCount = (n: number, one: string, many: string) => (n === 1 ? `ב${one}` : `ב-${n} ${many}`);
 
 /**
@@ -139,6 +152,7 @@ export function ExerciseLibraryScreen() {
                     </span>
                     <span className="block truncate text-xs text-muted">
                       {entry.exercise.muscleGroup} · {entry.exercise.equipment}
+                      {entry.exercise.trackingType === 'time' && ' · לפי זמן'}
                       {entry.sessionsPerformed > 0 &&
                         ` · בוצע ${inCount(entry.sessionsPerformed, 'אימון אחד', 'אימונים')}`}
                     </span>
@@ -176,6 +190,7 @@ function EditExerciseSheet({
   const [name, setName] = useState(exercise.name);
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>(exercise.muscleGroup);
   const [equipment, setEquipment] = useState<Equipment>(exercise.equipment);
+  const [trackingType, setTrackingType] = useState<TrackingType>(exercise.trackingType);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
 
@@ -183,7 +198,7 @@ function EditExerciseSheet({
   const inUse = entry.sessionsPerformed > 0 || entry.inPlans > 0;
 
   const save = async () => {
-    await updateExercise(exercise.id, { name, muscleGroup, equipment });
+    await updateExercise(exercise.id, { name, muscleGroup, equipment, trackingType });
     onClose();
   };
 
@@ -236,6 +251,22 @@ function EditExerciseSheet({
             </select>
           </div>
         </div>
+
+        <label className="mt-3 block text-xs text-muted">מדידה</label>
+        <select
+          value={trackingType}
+          onChange={(e) => setTrackingType(e.target.value as TrackingType)}
+          className="mt-1 h-12 w-full rounded-xl border border-line bg-ink px-2 text-sm"
+        >
+          {TRACKING_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {TRACKING_LABEL[t]}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 text-[11px] leading-relaxed text-muted">
+          ״זמן״ מתאים לתרגילים כמו פלאנק או הליכת חווה: במקום חזרות מזינים שניות.
+        </p>
 
         <p className="tnum mt-3 text-xs text-muted">
           {entry.sessionsPerformed > 0
@@ -323,9 +354,10 @@ function CreateExerciseSheet({ open, onClose }: { open: boolean; onClose: () => 
   const [name, setName] = useState('');
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>('חזה');
   const [equipment, setEquipment] = useState<Equipment>('מוט');
+  const [trackingType, setTrackingType] = useState<TrackingType>('weight');
 
   const submit = async () => {
-    await createExercise(name, muscleGroup, equipment);
+    await createExercise(name, muscleGroup, equipment, trackingType);
     setName('');
     onClose();
   };
@@ -381,8 +413,22 @@ function CreateExerciseSheet({ open, onClose }: { open: boolean; onClose: () => 
         </div>
       </div>
 
+      <label className="mt-3 block text-xs text-muted">מדידה</label>
+      <select
+        value={trackingType}
+        onChange={(e) => setTrackingType(e.target.value as TrackingType)}
+        className="mt-1 h-12 w-full rounded-xl border border-line bg-ink px-2 text-sm"
+      >
+        {TRACKING_TYPES.map((t) => (
+          <option key={t} value={t}>
+            {TRACKING_LABEL[t]}
+          </option>
+        ))}
+      </select>
+
       <p className="mt-3 text-[11px] leading-relaxed text-muted">
         התרגיל נשמר במאגר לצמיתות ויהיה זמין בכל אימון, לא רק בזה הנוכחי.
+        בחר ״זמן״ לתרגילים כמו פלאנק — במקום חזרות תזין שניות.
       </p>
     </Sheet>
   );
