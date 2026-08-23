@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { IconChevronLeft, IconDownload, IconTrash, IconUpload } from '../components/icons';
+import { IconChevronLeft, IconDownload, IconTimer, IconTrash, IconUpload } from '../components/icons';
 import { Button, ScreenHeader } from '../components/ui';
 import { TABLE_NAMES, type TableName } from '../db/types';
 import { seedIfEmpty } from '../db/seed';
 import { formatDate, formatNumber } from '../lib/format';
+import { checkForUpdateNow } from '../pwa';
 import {
   CURRENT_SCHEMA_VERSION,
   downloadBackup,
@@ -39,6 +40,7 @@ export function SettingsScreen() {
   const [confirmWipe, setConfirmWipe] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [storage, setStorage] = useState<{ usedMB: string; persisted: boolean } | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     void refreshStorage().then(setStorage);
@@ -107,6 +109,37 @@ export function SettingsScreen() {
             {error}
           </p>
         )}
+
+        {/* עדכון גרסה */}
+        <Section
+          title="גרסת האפליקציה"
+          body="האפליקציה מתעדכנת לבד כשיש אינטרנט, אבל אם שיניתי משהו ואתה עדיין רואה את הגרסה הישנה — אפשר לבדוק ידנית."
+        >
+          <Button
+            full
+            disabled={updating}
+            onClick={async () => {
+              setUpdating(true);
+              setError(null);
+              try {
+                const found = await checkForUpdateNow();
+                if (found) {
+                  setMessage('נמצאה גרסה חדשה — טוען אותה…');
+                  window.setTimeout(() => window.location.reload(), 600);
+                } else {
+                  setMessage('אתה כבר על הגרסה העדכנית.');
+                }
+              } catch {
+                setError('בדיקת העדכון נכשלה. ודא שיש אינטרנט ונסה שוב.');
+              } finally {
+                setUpdating(false);
+              }
+            }}
+          >
+            <IconTimer className="h-5 w-5" />
+            {updating ? 'בודק…' : 'בדוק אם יש עדכון'}
+          </Button>
+        </Section>
 
         {/* מאגר תרגילים */}
         <Section

@@ -17,6 +17,8 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // נרשם ידנית ב-src/pwa.ts כדי לשלוט במועד החלת העדכון
+      injectRegister: null,
       includeAssets: ['icons/apple-touch-icon.png', 'icons/favicon.svg'],
       workbox: {
         // כל הנכסים נכנסים ל-precache כדי שהאפליקציה תעבוד לגמרי אופליין.
