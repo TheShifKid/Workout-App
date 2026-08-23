@@ -100,14 +100,14 @@ export function SessionExerciseCard({
       )}
 
       {/*
-        כותרות עמודות: היחידות עברו לכאן מתוך שדות הקלט, שם הן הודפסו
-        מעל המספר עצמו. כאן גם מוצג טווח החזרות המתוכנן, בדיוק ליד
-        המקום שבו מקלידים אותו.
+        היחידות עצמן יושבות בתוך כל שדה, כדי שיהיו גלויות גם אחרי שגוללים
+        והכותרת יצאה מהמסך. כאן נשאר רק היעד המתוכנן, מעל העמודה שאליה
+        הוא שייך.
       */}
       <div className="flex items-center gap-2 px-4 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted">
-        <span className="min-w-0 flex-1 text-center">משקל · ק״ג</span>
-        <span className="min-w-0 flex-1 text-center">
-          {isTime ? `שניות · יעד ${targetRange}` : `חזרות · יעד ${targetRange}`}
+        <span className="min-w-0 flex-1 text-center">משקל</span>
+        <span className="min-w-0 flex-1 text-center text-volt">
+          יעד {targetRange} {isTime ? 'שנ׳' : 'חז׳'}
         </span>
         <span className="w-14 shrink-0" />
       </div>

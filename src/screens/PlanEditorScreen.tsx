@@ -160,6 +160,7 @@ export function PlanEditorScreen() {
                     row={row}
                     index={index}
                     name={exerciseMap.get(row.exerciseId)?.name ?? 'תרגיל שנמחק'}
+                    isTime={exerciseMap.get(row.exerciseId)?.trackingType === 'time'}
                     expanded={expandedId === row.id}
                     onToggle={() => setExpandedId(expandedId === row.id ? null : row.id)}
                   />
@@ -204,15 +205,19 @@ function PlanRow({
   row,
   index,
   name,
+  isTime,
   expanded,
   onToggle,
 }: {
   row: WorkoutExercise;
   index: number;
   name: string;
+  /** תרגיל מבוסס זמן — היעד נמדד בשניות ולא בחזרות. */
+  isTime: boolean;
   expanded: boolean;
   onToggle: () => void;
 }) {
+  const unitWord = isTime ? 'שניות' : 'חזרות';
   const navigate = useNavigate();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: row.id,
@@ -247,8 +252,8 @@ function PlanRow({
             {name}
           </p>
           <p className="tnum text-xs text-muted">
-            {row.targetSets} סטים × {formatRepRange(row.targetRepsMin, row.targetRepsMax)} חזרות ·
-            מנוחה {row.restSeconds} שנ׳
+            {row.targetSets} סטים × {formatRepRange(row.targetRepsMin, row.targetRepsMax)}{' '}
+            {unitWord} · מנוחה {row.restSeconds} שנ׳
           </p>
         </button>
 
@@ -282,14 +287,14 @@ function PlanRow({
                 onCommit={(v) => updatePlanRow(row.id, { restSeconds: v ?? 0 })}
               />
             </Field>
-            <Field label="חזרות — מינימום">
+            <Field label={`${unitWord} — מינימום`}>
               <NumberStepper
                 value={row.targetRepsMin}
                 step={1}
                 min={1}
                 max={100}
                 decimals={0}
-                label="מינימום חזרות"
+                label={`מינימום ${unitWord}`}
                 onCommit={(v) => {
                   const min = v ?? 1;
                   updatePlanRow(row.id, {
@@ -299,14 +304,14 @@ function PlanRow({
                 }}
               />
             </Field>
-            <Field label="חזרות — מקסימום">
+            <Field label={`${unitWord} — מקסימום`}>
               <NumberStepper
                 value={row.targetRepsMax}
                 step={1}
                 min={1}
                 max={100}
                 decimals={0}
-                label="מקסימום חזרות"
+                label={`מקסימום ${unitWord}`}
                 onCommit={(v) => {
                   const max = v ?? 1;
                   updatePlanRow(row.id, {

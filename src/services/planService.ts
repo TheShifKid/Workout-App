@@ -4,8 +4,11 @@ import {
   DEFAULT_REPS_MIN,
   DEFAULT_REST_SECONDS,
   DEFAULT_TARGET_SETS,
+  DEFAULT_TIME_MAX,
+  DEFAULT_TIME_MIN,
   WORKOUT_COLORS,
 } from '../lib/constants';
+import { exercisesRepo } from '../repositories/exercises.repo';
 import { workoutExercisesRepo } from '../repositories/workoutExercises.repo';
 import { workoutsRepo } from '../repositories/workouts.repo';
 
@@ -31,16 +34,26 @@ export function deleteWorkout(id: ID): Promise<void> {
   return workoutsRepo.remove(id);
 }
 
-export function addExerciseToPlan(workoutId: ID, exerciseId: ID): Promise<ID> {
+export async function addExerciseToPlan(workoutId: ID, exerciseId: ID): Promise<ID> {
+  const exercise = await exercisesRepo.get(exerciseId);
+  const target = defaultTargetRange(exercise?.trackingType === 'time');
+
   return workoutExercisesRepo.add({
     workoutId,
     exerciseId,
     targetSets: DEFAULT_TARGET_SETS,
-    targetRepsMin: DEFAULT_REPS_MIN,
-    targetRepsMax: DEFAULT_REPS_MAX,
+    targetRepsMin: target.min,
+    targetRepsMax: target.max,
     restSeconds: DEFAULT_REST_SECONDS,
     note: '',
   });
+}
+
+/** יעד התחלתי: חזרות לתרגיל משקל, שניות לתרגיל זמן. */
+export function defaultTargetRange(isTime: boolean): { min: number; max: number } {
+  return isTime
+    ? { min: DEFAULT_TIME_MIN, max: DEFAULT_TIME_MAX }
+    : { min: DEFAULT_REPS_MIN, max: DEFAULT_REPS_MAX };
 }
 
 /** הסרה מהתוכנית — ההיסטוריה של התרגיל נשארת שלמה. */

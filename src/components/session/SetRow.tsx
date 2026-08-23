@@ -1,14 +1,16 @@
-import { IconCheck, IconLock, IconTrash } from '../icons';
+import { IconCheck, IconLock, IconTimer, IconTrash } from '../icons';
 import { NumberStepper } from '../NumberStepper';
 import type { SetLog, TrackingType } from '../../db/types';
 import { REPS_STEP, WEIGHT_STEP } from '../../lib/constants';
 import { formatDuration, formatWeight } from '../../lib/format';
+import { useSetTimer } from '../../hooks/useSetTimer';
 import type { Prefill } from '../../services/historyService';
 
 /**
  * שורת סט אחת — היחידה שהכי הרבה נוגעים בה באמצע אימון.
  *
- * שורה עליונה: מספר הסט, מה עשית בפעם הקודמת, וכפתורי חימום/מחיקה.
+ * שורה עליונה: מספר הסט, מה עשית בפעם הקודמת, וכפתורי חימום/מחיקה
+ * (או טיימר, בתרגיל מבוסס זמן).
  * שורה תחתונה: משקל, חזרות (או שניות), וי.
  *
  * סט שסומן כבוצע (ירוק) ננעל לעריכה: באמצע גלילה ביד אחת קל מאוד
@@ -38,20 +40,30 @@ export function SetRow({
   onToggleDone: () => void;
   onRemove: () => void;
 }) {
+  const { activeSetLogId, elapsedSeconds, start, stop } = useSetTimer();
+
   const done = log.isDone === 1;
   const warmup = log.isWarmup === 1;
   const isTime = trackingType === 'time';
+  const timing = activeSetLogId === log.id;
 
   const previousText = describePrevious(prefill, isTime);
+
+  const toggleTimer = () => {
+    if (timing) onCommitDuration(stop());
+    else start(log.id);
+  };
 
   return (
     <li
       className={`rounded-xl border px-2 py-2 transition-colors ${
         done
           ? 'border-volt bg-volt/8'
-          : warmup
-            ? 'border-flame/40 bg-flame/5'
-            : 'border-line bg-ink'
+          : timing
+            ? 'border-flame bg-flame/8'
+            : warmup
+              ? 'border-flame/40 bg-flame/5'
+              : 'border-line bg-ink'
       }`}
     >
       <div className="mb-1.5 flex items-center gap-2 pr-1">
@@ -73,26 +85,44 @@ export function SetRow({
           </span>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={onToggleWarmup}
-              aria-pressed={warmup}
-              className={`shrink-0 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors ${
-                warmup ? 'bg-flame/15 text-flame' : 'tap text-muted'
-              }`}
-            >
-              חימום
-            </button>
+            {isTime && (
+              <button
+                type="button"
+                onClick={toggleTimer}
+                aria-label={timing ? `עצור מדידה של סט ${log.setNumber}` : `מדוד סט ${log.setNumber}`}
+                className={`tnum flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors ${
+                  timing ? 'bg-flame text-ink' : 'tap bg-surface-2 text-flame'
+                }`}
+              >
+                <IconTimer className="h-3.5 w-3.5" />
+                {timing ? `עצור ${formatDuration(elapsedSeconds)}` : 'מדוד'}
+              </button>
+            )}
 
-            <button
-              type="button"
-              onClick={onRemove}
-              disabled={!canRemove}
-              aria-label={`מחק סט ${log.setNumber}`}
-              className="tap shrink-0 rounded-md p-1.5 text-muted disabled:opacity-25"
-            >
-              <IconTrash className="h-4 w-4" />
-            </button>
+            {!timing && (
+              <>
+                <button
+                  type="button"
+                  onClick={onToggleWarmup}
+                  aria-pressed={warmup}
+                  className={`shrink-0 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors ${
+                    warmup ? 'bg-flame/15 text-flame' : 'tap text-muted'
+                  }`}
+                >
+                  חימום
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onRemove}
+                  disabled={!canRemove}
+                  aria-label={`מחק סט ${log.setNumber}`}
+                  className="tap shrink-0 rounded-md p-1.5 text-muted disabled:opacity-25"
+                >
+                  <IconTrash className="h-4 w-4" />
+                </button>
+              </>
+            )}
           </>
         )}
       </div>
@@ -106,6 +136,7 @@ export function SetRow({
             max={999}
             disabled={done}
             label={`משקל בסט ${log.setNumber}`}
+            unit='ק"ג'
             onCommit={onCommitWeight}
           />
         </div>
@@ -113,13 +144,15 @@ export function SetRow({
         <div className="min-w-0 flex-1">
           {isTime ? (
             <NumberStepper
-              value={log.durationSeconds}
+              // בזמן מדידה השדה מציג את הספירה החיה, וננעל כדי שלא יתנגש בה
+              value={timing ? elapsedSeconds : log.durationSeconds}
               ghost={prefill.durationSeconds}
               step={5}
               max={7200}
               decimals={0}
-              disabled={done}
+              disabled={done || timing}
               label={`שניות בסט ${log.setNumber}`}
+              unit="שנ׳"
               onCommit={onCommitDuration}
             />
           ) : (
@@ -131,6 +164,7 @@ export function SetRow({
               decimals={0}
               disabled={done}
               label={`חזרות בסט ${log.setNumber}`}
+              unit="חז׳"
               onCommit={onCommitReps}
             />
           )}

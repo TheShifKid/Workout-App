@@ -2,7 +2,8 @@ import { db } from '../db/db';
 import { newId } from '../db/ids';
 import type { ID, Session, SessionExercise, SetLog } from '../db/types';
 import { toLocalDateKey } from '../lib/format';
-import { DEFAULT_REST_SECONDS, DEFAULT_REPS_MAX, DEFAULT_REPS_MIN } from '../lib/constants';
+import { DEFAULT_REST_SECONDS } from '../lib/constants';
+import { defaultTargetRange } from './planService';
 import { exercisesRepo } from '../repositories/exercises.repo';
 import { sessionExercisesRepo } from '../repositories/sessionExercises.repo';
 import { sessionsRepo } from '../repositories/sessions.repo';
@@ -82,14 +83,16 @@ export async function addExerciseToSession(
   if (!exercise) throw new Error('התרגיל לא נמצא');
   if (existing.some((e) => e.exerciseId === exerciseId)) return;
 
+  const target = defaultTargetRange(exercise.trackingType === 'time');
+
   const snapshot: SessionExercise = {
     id: newId(),
     sessionId,
     exerciseId,
     order: existing.length,
     targetSets,
-    targetRepsMin: DEFAULT_REPS_MIN,
-    targetRepsMax: DEFAULT_REPS_MAX,
+    targetRepsMin: target.min,
+    targetRepsMax: target.max,
     restSeconds: DEFAULT_REST_SECONDS,
     note: '',
     exerciseName: exercise.name,

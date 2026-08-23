@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { RestTimerProvider } from './hooks/useRestTimer';
+import { SetTimerProvider } from './hooks/useSetTimer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { seedIfEmpty } from './db/seed';
 import './index.css';
@@ -20,7 +21,9 @@ seedIfEmpty()
         <ErrorBoundary>
           <BrowserRouter basename={basename}>
             <RestTimerProvider>
-              <App />
+              <SetTimerProvider>
+                <App />
+              </SetTimerProvider>
             </RestTimerProvider>
           </BrowserRouter>
         </ErrorBoundary>

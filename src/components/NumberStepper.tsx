@@ -17,6 +17,7 @@ export function NumberStepper({
   max = 9999,
   decimals = 2,
   label,
+  unit,
   disabled,
   onCommit,
 }: {
@@ -27,6 +28,12 @@ export function NumberStepper({
   max?: number;
   decimals?: number;
   label: string;
+  /**
+   * יחידת המידה שמוצגת בתוך השדה (ק"ג / חז׳ / שנ׳).
+   * יושבת כאלמנט נפרד לצד המספר ולא כשכבה מעליו, אחרת היא מסתירה
+   * אותו ברגע שהמספר ארוך — בדיוק הבאג שהיה כאן קודם.
+   */
+  unit?: string;
   /** נעול: מוצג לקריאה בלבד ולא ניתן לשינוי (סט שכבר סומן כבוצע). */
   disabled?: boolean;
   onCommit: (next: number | null) => void;
@@ -121,10 +128,13 @@ export function NumberStepper({
           }}
           readOnly={disabled}
           tabIndex={disabled ? -1 : undefined}
-          className={`tnum-hero h-12 w-full bg-transparent text-center text-xl outline-none ${
+          className={`tnum-hero h-12 min-w-0 flex-1 bg-transparent text-center text-xl outline-none ${
             usingGhost && !focused ? 'text-muted' : 'text-body'
           } ${disabled ? 'cursor-default' : ''}`}
         />
+        {unit && (
+          <span className="shrink-0 pl-2 text-[10px] font-bold text-muted">{unit}</span>
+        )}
       </div>
 
       <button
