@@ -51,6 +51,26 @@ export function setExerciseDefaultNote(id: ID, defaultNote: string): Promise<num
   return exercisesRepo.update(id, { defaultNote });
 }
 
+/**
+ * מסמן תרגיל כחד-צדדי (או מבטל).
+ *
+ * sessionId אופציונלי: כשמשנים תוך כדי אימון, מעדכנים גם את צילום המצב
+ * של האימון הפעיל. זה חריג מכוון לכלל שההיסטוריה קפואה — כאן המשתמש
+ * מתקן במפורש איך התרגיל נמדד, ומצפה שזה יחול על מה שהוא עושה עכשיו.
+ */
+export async function setUnilateral(
+  exerciseId: ID,
+  isUnilateral: Flag,
+  sessionId?: ID,
+): Promise<void> {
+  await exercisesRepo.update(exerciseId, { isUnilateral });
+  if (!sessionId) return;
+
+  const snapshots = await db.sessionExercises.where('sessionId').equals(sessionId).toArray();
+  const target = snapshots.find((s) => s.exerciseId === exerciseId);
+  if (target) await db.sessionExercises.update(target.id, { isUnilateral });
+}
+
 export const archiveExercise = (id: ID) => exercisesRepo.archive(id);
 export const unarchiveExercise = (id: ID) => exercisesRepo.unarchive(id);
 

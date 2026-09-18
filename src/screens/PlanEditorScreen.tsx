@@ -33,6 +33,7 @@ import type { ID, WorkoutExercise } from '../db/types';
 import { usePlanRows, useExerciseMap, useWorkout } from '../hooks/useData';
 import { WORKOUT_COLORS } from '../lib/constants';
 import { formatRepRange, plural } from '../lib/format';
+import { setUnilateral } from '../services/exerciseLibraryService';
 import {
   addExerciseToPlan,
   deleteWorkout,
@@ -161,6 +162,7 @@ export function PlanEditorScreen() {
                     index={index}
                     name={exerciseMap.get(row.exerciseId)?.name ?? 'תרגיל שנמחק'}
                     isTime={exerciseMap.get(row.exerciseId)?.trackingType === 'time'}
+                    isUnilateral={exerciseMap.get(row.exerciseId)?.isUnilateral === 1}
                     expanded={expandedId === row.id}
                     onToggle={() => setExpandedId(expandedId === row.id ? null : row.id)}
                   />
@@ -206,6 +208,7 @@ function PlanRow({
   index,
   name,
   isTime,
+  isUnilateral,
   expanded,
   onToggle,
 }: {
@@ -214,6 +217,8 @@ function PlanRow({
   name: string;
   /** תרגיל מבוסס זמן — היעד נמדד בשניות ולא בחזרות. */
   isTime: boolean;
+  /** תרגיל שמבוצע יד/רגל אחת בכל פעם. */
+  isUnilateral: boolean;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -253,7 +258,7 @@ function PlanRow({
           </p>
           <p className="tnum text-xs text-muted">
             {row.targetSets} סטים × {formatRepRange(row.targetRepsMin, row.targetRepsMax)}{' '}
-            {unitWord} · מנוחה {row.restSeconds} שנ׳
+            {unitWord} · מנוחה {row.restSeconds} שנ׳{isUnilateral && ' · ימין/שמאל'}
           </p>
         </button>
 
@@ -322,6 +327,21 @@ function PlanRow({
               />
             </Field>
           </div>
+
+          <label className="tap mt-3 flex items-center gap-3 rounded-xl border border-line bg-ink p-3">
+            <input
+              type="checkbox"
+              checked={isUnilateral}
+              onChange={(e) => setUnilateral(row.exerciseId, e.target.checked ? 1 : 0)}
+              className="h-5 w-5 shrink-0 accent-[var(--color-volt)]"
+            />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">יד/רגל אחת בכל פעם</span>
+              <span className="block text-[11px] leading-relaxed text-muted">
+                יירשמו שני ערכים נפרדים, ימין ושמאל. חל על התרגיל בכל האימונים.
+              </span>
+            </span>
+          </label>
 
           <label className="mt-3 block text-xs text-muted">הערה לתרגיל באימון הזה</label>
           <input

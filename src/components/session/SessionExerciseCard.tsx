@@ -11,8 +11,9 @@ import {
   setDone,
   updateSet,
 } from '../../services/sessionService';
+import { setUnilateral } from '../../services/exerciseLibraryService';
 import { ConfirmDialog } from '../ConfirmDialog';
-import { IconChart, IconNote, IconPlus, IconTrash } from '../icons';
+import { IconChart, IconNote, IconPlus, IconSides, IconTrash } from '../icons';
 import { Button, IconButton } from '../ui';
 import { SetRow, type Side } from './SetRow';
 
@@ -113,7 +114,30 @@ export function SessionExerciseCard({
           יעד {targetRange} {usesTime ? 'שנ׳' : 'חז׳'}
           {isUnilateral && ' לכל צד'}
         </span>
-        <span className="w-14 shrink-0" />
+        <span className="w-12 shrink-0" />
+      </div>
+
+      {/*
+        המתג יושב כאן ולא רק בהגדרות: את זה מגלים דווקא מול המכונה
+        ("רגע, זה יד־יד"), ואז אין טעם לצאת מהאימון כדי לשנות.
+        השינוי חל גם על התרגיל במאגר וגם על האימון הפעיל הזה.
+      */}
+      <div className="px-4 pb-1 pt-2">
+        <button
+          type="button"
+          aria-pressed={isUnilateral}
+          onClick={() =>
+            setUnilateral(snapshot.exerciseId, isUnilateral ? 0 : 1, snapshot.sessionId)
+          }
+          className={`tap inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors ${
+            isUnilateral
+              ? 'border-volt bg-volt/10 text-volt'
+              : 'border-line bg-surface-2 text-muted'
+          }`}
+        >
+          <IconSides className="h-3.5 w-3.5" />
+          {isUnilateral ? 'יד/רגל אחת בכל פעם' : 'סמן כיד/רגל אחת בכל פעם'}
+        </button>
       </div>
 
       <ul className="flex flex-col gap-2 p-2">

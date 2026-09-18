@@ -169,6 +169,14 @@ export const IconLock = (p: Props) => (
   </Svg>
 );
 
+export const IconSides = (p: Props) => (
+  <Svg {...p}>
+    <path d="M12 4v16" />
+    <path d="M7.5 9.5 4 13l3.5 3.5" />
+    <path d="M16.5 9.5 20 13l-3.5 3.5" />
+  </Svg>
+);
+
 export const IconChart = (p: Props) => (
   <Svg {...p}>
     <path d="M4 20V4M4 20h16" />
