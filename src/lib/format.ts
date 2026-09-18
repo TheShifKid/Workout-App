@@ -93,3 +93,29 @@ function startOfDay(ms: number): number {
   d.setHours(0, 0, 0, 0);
   return d.getTime();
 }
+
+/**
+ * ערך הסט לתצוגה בהיסטוריה: "60 ק"ג × 8", "1:00", "45 ק"ג × 12/10".
+ * בתרגיל חד-צדדי מוצגים שני הצדדים מופרדים בלוכסן — ימין/שמאל.
+ */
+export function formatSetValue(
+  set: {
+    weight: number | null;
+    reps: number | null;
+    repsLeft: number | null;
+    durationSeconds: number | null;
+    durationSecondsLeft: number | null;
+  },
+  opts: { usesWeight: boolean; usesTime: boolean; isUnilateral: boolean },
+): string {
+  const weightPart = opts.usesWeight ? `${formatWeight(set.weight)} ק"ג` : '';
+
+  const one = (v: number | null) =>
+    v === null ? '—' : opts.usesTime ? formatDuration(v) : String(v);
+
+  const primary = opts.usesTime ? set.durationSeconds : set.reps;
+  const secondary = opts.usesTime ? set.durationSecondsLeft : set.repsLeft;
+  const amount = opts.isUnilateral ? `${one(primary)}/${one(secondary)}` : one(primary);
+
+  return weightPart ? `${weightPart} × ${amount}` : amount;
+}

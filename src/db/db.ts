@@ -8,6 +8,14 @@ import type {
   WorkoutExercise,
 } from './types';
 
+/** תרגילים זרועים שמבוצעים צד אחד בכל פעם. */
+export const UNILATERAL_SEED_IDS = new Set([
+  'seed-cable-lateral-raise',
+  'seed-db-row',
+  'seed-cable-kickback',
+  'seed-bulgarian-split-squat',
+]);
+
 /** תרגילים זרועים שאינם 'weight' — משמש גם בשדרוגי הגרסאות. */
 export const SEED_TRACKING_OVERRIDES: Record<string, 'time' | 'weightTime'> = {
   'seed-plank': 'time',
@@ -83,6 +91,37 @@ export class WorkoutDB extends Dexie {
           if (override) e.trackingType = override;
         });
     });
+
+    /**
+     * גרסה 4: תרגילים חד-צדדיים (ימין/שמאל בנפרד).
+     * קיימים מקבלים 0/null, כך ששום נתון היסטורי לא משתנה; רק תרגילים
+     * זרועים שברור שהם חד-צדדיים מסומנים ככאלה.
+     */
+    this.version(4)
+      .stores({
+        exercises: 'id, name, muscleGroup, equipment, isArchived, trackingType, isUnilateral',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table('exercises')
+          .toCollection()
+          .modify((e) => {
+            e.isUnilateral = e.isUnilateral ?? (UNILATERAL_SEED_IDS.has(e.id) ? 1 : 0);
+          });
+        await tx
+          .table('sessionExercises')
+          .toCollection()
+          .modify((s) => {
+            s.isUnilateral = s.isUnilateral ?? 0;
+          });
+        await tx
+          .table('setLogs')
+          .toCollection()
+          .modify((l) => {
+            l.repsLeft = l.repsLeft ?? null;
+            l.durationSecondsLeft = l.durationSecondsLeft ?? null;
+          });
+      });
   }
 }
 

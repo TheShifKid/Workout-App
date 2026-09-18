@@ -9,7 +9,11 @@ import { setLogsRepo } from '../repositories/setLogs.repo';
 
 export const isCounted = (s: SetLog) => s.isDone === 1 && s.isWarmup === 0;
 
-export const setVolume = (s: SetLog) => (s.weight ?? 0) * (s.reps ?? 0);
+/**
+ * נפח הסט. בתרגיל חד-צדדי שני הצדדים נספרים, כי עשית את שניהם —
+ * repsLeft הוא null בתרגיל דו-צדדי ולכן אינו משפיע.
+ */
+export const setVolume = (s: SetLog) => (s.weight ?? 0) * ((s.reps ?? 0) + (s.repsLeft ?? 0));
 
 export interface SessionSummary {
   completedSets: number;
@@ -91,22 +95,26 @@ export function computePRs(history: ExerciseSessionEntry[]): ExercisePRs {
     totalVolume += entry.volume;
 
     for (const set of entry.sets) {
-      const seconds = set.durationSeconds ?? 0;
+      // בחד-צדדי כל צד הוא ביצוע בפני עצמו, אז שניהם נבחנים לשיא
+      const seconds = Math.max(set.durationSeconds ?? 0, set.durationSecondsLeft ?? 0);
       if (seconds > 0 && (!longestHold || seconds > longestHold.seconds)) {
         longestHold = { seconds, weight: set.weight, date: entry.session.date };
       }
 
       const weight = set.weight ?? 0;
-      const reps = set.reps ?? 0;
-      if (!weight || !reps) continue;
+      if (!weight) continue;
 
-      if (!heaviest || weight > heaviest.weight) {
-        heaviest = { weight, reps, date: entry.session.date };
-      }
+      for (const reps of [set.reps, set.repsLeft]) {
+        if (!reps) continue;
 
-      const e1rm = estimateOneRepMax(weight, reps);
-      if (!bestOneRepMax || e1rm > bestOneRepMax.value) {
-        bestOneRepMax = { value: roundToHalf(e1rm), weight, reps, date: entry.session.date };
+        if (!heaviest || weight > heaviest.weight) {
+          heaviest = { weight, reps, date: entry.session.date };
+        }
+
+        const e1rm = estimateOneRepMax(weight, reps);
+        if (!bestOneRepMax || e1rm > bestOneRepMax.value) {
+          bestOneRepMax = { value: roundToHalf(e1rm), weight, reps, date: entry.session.date };
+        }
       }
     }
   }

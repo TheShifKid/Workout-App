@@ -1,5 +1,5 @@
 import { db } from './db';
-import { SEED_TRACKING_OVERRIDES } from './db';
+import { SEED_TRACKING_OVERRIDES, UNILATERAL_SEED_IDS } from './db';
 import type { Equipment, Exercise, MuscleGroup } from './types';
 
 /**
@@ -105,6 +105,7 @@ export async function seedIfEmpty(): Promise<void> {
       defaultNote: '',
       isArchived: 0,
       trackingType: SEED_TRACKING_OVERRIDES[seedExerciseId(slug)] ?? 'weight',
+      isUnilateral: UNILATERAL_SEED_IDS.has(seedExerciseId(slug)) ? 1 : 0,
     }),
   );
 

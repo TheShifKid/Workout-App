@@ -49,6 +49,12 @@ export async function addExerciseToPlan(workoutId: ID, exerciseId: ID): Promise<
   });
 }
 
+/** האם התרגיל כבר נמצא בתוכנית של סוג האימון הזה. */
+export async function isInPlan(workoutId: ID, exerciseId: ID): Promise<boolean> {
+  const rows = await workoutExercisesRepo.byWorkout(workoutId);
+  return rows.some((r) => r.exerciseId === exerciseId);
+}
+
 /** יעד התחלתי: חזרות לתרגיל משקל, שניות לתרגיל זמן. */
 export function defaultTargetRange(isTime: boolean): { min: number; max: number } {
   return isTime

@@ -80,14 +80,22 @@ export async function getPreviousPerformanceMany(
 export interface Prefill {
   weight: number | null;
   reps: number | null;
+  repsLeft: number | null;
   durationSeconds: number | null;
+  durationSecondsLeft: number | null;
 }
 
 export function prefillForSet(
   previous: PreviousPerformance | null | undefined,
   setNumber: number,
 ): Prefill {
-  const empty: Prefill = { weight: null, reps: null, durationSeconds: null };
+  const empty: Prefill = {
+    weight: null,
+    reps: null,
+    repsLeft: null,
+    durationSeconds: null,
+    durationSecondsLeft: null,
+  };
   if (!previous || previous.sets.length === 0) return empty;
   const index = Math.min(setNumber, previous.sets.length) - 1;
   const source = previous.sets[Math.max(0, index)];
@@ -95,6 +103,8 @@ export function prefillForSet(
   return {
     weight: source.weight ?? null,
     reps: source.reps ?? null,
+    repsLeft: source.repsLeft ?? null,
     durationSeconds: source.durationSeconds ?? null,
+    durationSecondsLeft: source.durationSecondsLeft ?? null,
   };
 }

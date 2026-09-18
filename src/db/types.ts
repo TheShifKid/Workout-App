@@ -56,6 +56,12 @@ export interface Exercise {
   isArchived: Flag;
   /** 'weight' = משקל × חזרות, 'time' = משקל (אופציונלי) × שניות. */
   trackingType: TrackingType;
+  /**
+   * תרגיל חד-צדדי: מבוצע יד/רגל אחת בכל פעם (הרחקות צד בכבלים, חתירה
+   * במשקולת יד). נרשמים שני ערכים נפרדים — ימין ושמאל — כי הצד החלש
+   * לרוב עושה פחות, וזה בדיוק המידע שאובד כשרושמים מספר אחד.
+   */
+  isUnilateral: Flag;
 }
 
 /** סוג אימון בתוכנית ("דחיפה", "משיכה"...). */
@@ -113,6 +119,8 @@ export interface SessionExercise {
   exerciseName: string;
   /** צילום מצב של שיטת המדידה, כדי שההיסטוריה לא תשתנה אם התרגיל יעודכן. */
   trackingType: TrackingType;
+  /** צילום מצב של חד-צדדיות, מאותה סיבה. */
+  isUnilateral: Flag;
 }
 
 /** סט בודד שנרשם באימון. */
@@ -122,10 +130,20 @@ export interface SetLog {
   exerciseId: ID;
   setNumber: number;
   weight: number | null;
-  /** חזרות — רלוונטי לתרגילי משקל. null בתרגילי זמן. */
+  /**
+   * חזרות — רלוונטי לתרגילי משקל. null בתרגילי זמן.
+   * בתרגיל חד-צדדי זהו צד ימין.
+   */
   reps: number | null;
-  /** משך בשניות — רלוונטי לתרגילי זמן. null בתרגילי משקל. */
+  /** חזרות בצד שמאל. null בתרגיל דו-צדדי. */
+  repsLeft: number | null;
+  /**
+   * משך בשניות — רלוונטי לתרגילי זמן. null בתרגילי משקל.
+   * בתרגיל חד-צדדי זהו צד ימין.
+   */
   durationSeconds: number | null;
+  /** משך בצד שמאל. null בתרגיל דו-צדדי. */
+  durationSecondsLeft: number | null;
   isWarmup: Flag;
   /** רק סט מסומן נחשב כבוצע — לסטטיסטיקות ול"פעם הקודמת". */
   isDone: Flag;

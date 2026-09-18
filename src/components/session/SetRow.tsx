@@ -6,6 +6,9 @@ import { formatDuration, formatWeight } from '../../lib/format';
 import { useSetTimer } from '../../hooks/useSetTimer';
 import type { Prefill } from '../../services/historyService';
 
+/** צד בתרגיל חד-צדדי. 'right' הוא גם הצד היחיד בתרגיל דו-צדדי. */
+export type Side = 'right' | 'left';
+
 /**
  * שורת סט אחת — היחידה שהכי הרבה נוגעים בה באמצע אימון.
  *
@@ -21,6 +24,7 @@ export function SetRow({
   log,
   prefill,
   trackingType,
+  isUnilateral,
   canRemove,
   onCommitWeight,
   onCommitReps,
@@ -32,10 +36,12 @@ export function SetRow({
   log: SetLog;
   prefill: Prefill;
   trackingType: TrackingType;
+  /** תרגיל חד-צדדי: נרשמים שני ערכים, ימין ושמאל. */
+  isUnilateral: boolean;
   canRemove: boolean;
   onCommitWeight: (v: number | null) => void;
-  onCommitReps: (v: number | null) => void;
-  onCommitDuration: (v: number | null) => void;
+  onCommitReps: (v: number | null, side: Side) => void;
+  onCommitDuration: (v: number | null, side: Side) => void;
   onToggleWarmup: () => void;
   onToggleDone: () => void;
   onRemove: () => void;
@@ -49,10 +55,48 @@ export function SetRow({
   const usesWeight = trackingType === 'weight' || trackingType === 'weightTime';
   const timing = activeSetLogId === log.id;
 
-  const previousText = describePrevious(prefill, usesTime, usesWeight);
+  const previousText = describePrevious(prefill, usesTime, usesWeight, isUnilateral);
 
+  /** סטפר לצד אחד. ביחידה מוצג "ימין"/"שמאל" במקום חז׳/שנ׳ — הצד הוא
+   *  המידע המבחין, והיחידה כבר ברורה מכותרת העמודה. */
+  const sideStepper = (side: Side) => {
+    const isLeft = side === 'left';
+    const unit = isUnilateral ? (isLeft ? 'שמאל' : 'ימין') : usesTime ? 'שנ׳' : 'חז׳';
+    const sideWord = isUnilateral ? (isLeft ? ' שמאל' : ' ימין') : '';
+
+    return usesTime ? (
+      <NumberStepper
+        // בזמן מדידה השדה מציג את הספירה החיה, וננעל כדי שלא יתנגש בה
+        value={timing && timerSide === side ? elapsedSeconds : isLeft ? log.durationSecondsLeft : log.durationSeconds}
+        ghost={isLeft ? prefill.durationSecondsLeft : prefill.durationSeconds}
+        step={5}
+        max={7200}
+        decimals={0}
+        disabled={done || (timing && timerSide === side)}
+        label={`שניות${sideWord} בסט ${log.setNumber}`}
+        unit={unit}
+        onCommit={(v) => onCommitDuration(v, side)}
+      />
+    ) : (
+      <NumberStepper
+        value={isLeft ? log.repsLeft : log.reps}
+        ghost={isLeft ? prefill.repsLeft : prefill.reps}
+        step={REPS_STEP}
+        max={999}
+        decimals={0}
+        disabled={done}
+        label={`חזרות${sideWord} בסט ${log.setNumber}`}
+        unit={unit}
+        onCommit={(v) => onCommitReps(v, side)}
+      />
+    );
+  };
+
+  // בתרגיל חד-צדדי הטיימר מודד את הצד שעדיין ריק, כדי שאפשר יהיה
+  // למדוד ימין ואז שמאל בלי לבחור ידנית.
+  const timerSide: Side = isUnilateral && log.durationSeconds !== null ? 'left' : 'right';
   const toggleTimer = () => {
-    if (timing) onCommitDuration(stop());
+    if (timing) onCommitDuration(stop(), timerSide);
     else start(log.id);
   };
 
@@ -145,33 +189,13 @@ export function SetRow({
           </div>
         )}
 
-        <div className="min-w-0 flex-1">
-          {usesTime ? (
-            <NumberStepper
-              // בזמן מדידה השדה מציג את הספירה החיה, וננעל כדי שלא יתנגש בה
-              value={timing ? elapsedSeconds : log.durationSeconds}
-              ghost={prefill.durationSeconds}
-              step={5}
-              max={7200}
-              decimals={0}
-              disabled={done || timing}
-              label={`שניות בסט ${log.setNumber}`}
-              unit="שנ׳"
-              onCommit={onCommitDuration}
-            />
-          ) : (
-            <NumberStepper
-              value={log.reps}
-              ghost={prefill.reps}
-              step={REPS_STEP}
-              max={999}
-              decimals={0}
-              disabled={done}
-              label={`חזרות בסט ${log.setNumber}`}
-              unit="חז׳"
-              onCommit={onCommitReps}
-            />
-          )}
+        {/*
+          בתרגיל חד-צדדי שני הצדדים נערמים לגובה ולא לרוחב: במסך צר אין
+          מקום לשלושה שדות בשורה אחת, וגם ככה נאבקנו על כל פיקסל.
+        */}
+        <div className={`min-w-0 flex-1 ${isUnilateral ? 'flex flex-col gap-1.5' : ''}`}>
+          {sideStepper('right')}
+          {isUnilateral && sideStepper('left')}
         </div>
 
         <button
@@ -179,7 +203,9 @@ export function SetRow({
           onClick={onToggleDone}
           aria-pressed={done}
           aria-label={done ? `בטל סימון סט ${log.setNumber}` : `סמן סט ${log.setNumber} כבוצע`}
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 transition-colors ${
+          className={`flex w-12 shrink-0 items-center justify-center rounded-xl border-2 transition-colors ${
+            isUnilateral ? 'h-[102px]' : 'h-12'
+          } ${
             done
               ? 'border-volt bg-volt text-ink'
               : 'border-line-strong bg-surface-2 text-muted hover-check'
@@ -198,17 +224,30 @@ export function SetRow({
  * usesWeight מגיע מסוג התרגיל ולא מהנתון עצמו: תרגיל שעבר ל"זמן בלבד"
  * עשוי לגרור משקל שנרשם לפני השינוי, ואין סיבה להציג אותו.
  */
-function describePrevious(prefill: Prefill, isTime: boolean, usesWeight: boolean): string {
-  const { reps, durationSeconds } = prefill;
+function describePrevious(
+  prefill: Prefill,
+  isTime: boolean,
+  usesWeight: boolean,
+  isUnilateral: boolean,
+): string {
+  const { reps, repsLeft, durationSeconds, durationSecondsLeft } = prefill;
   const weight = usesWeight ? prefill.weight : null;
-  if (weight === null && reps === null && durationSeconds === null) return 'אין נתונים קודמים';
+  if (weight === null && reps === null && repsLeft === null && durationSeconds === null) {
+    return 'אין נתונים קודמים';
+  }
 
   const weightPart = weight !== null ? `${formatWeight(weight)} ק"ג` : '';
 
-  if (isTime) {
-    const timePart = durationSeconds !== null ? formatDuration(durationSeconds) : '—';
-    return weightPart ? `קודם: ${weightPart} × ${timePart}` : `קודם: ${timePart}`;
-  }
+  // חד-צדדי מוצג "ימין/שמאל" — שני מספרים מופרדים בלוכסן
+  const amount = isTime
+    ? isUnilateral
+      ? `${fmtTime(durationSeconds)}/${fmtTime(durationSecondsLeft)}`
+      : fmtTime(durationSeconds)
+    : isUnilateral
+      ? `${reps ?? '—'}/${repsLeft ?? '—'}`
+      : `${reps ?? '—'}`;
 
-  return `קודם: ${weightPart || '—'} × ${reps ?? '—'}`;
+  return weightPart ? `קודם: ${weightPart} × ${amount}` : `קודם: ${amount}`;
 }
+
+const fmtTime = (v: number | null) => (v === null ? '—' : formatDuration(v));

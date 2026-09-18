@@ -10,8 +10,8 @@ import {
   formatDateLong,
   formatDuration,
   formatNumber,
+  formatSetValue,
   formatTime,
-  formatWeight,
 } from '../lib/format';
 import { deleteSession, reopenSession, setSessionNote } from '../services/sessionService';
 import { setVolume, summarizeSession } from '../services/statsService';
@@ -126,11 +126,11 @@ export function SessionDetailScreen() {
                         {set.isWarmup === 1 ? 'ח' : set.setNumber}
                       </span>
                       <span className="flex-1">
-                        {snapshot.trackingType === 'time'
-                          ? formatDuration(set.durationSeconds ?? 0)
-                          : snapshot.trackingType === 'weightTime'
-                            ? `${formatWeight(set.weight)} ק"ג × ${formatDuration(set.durationSeconds ?? 0)}`
-                            : `${formatWeight(set.weight)} ק"ג × ${set.reps ?? '—'}`}
+                        {formatSetValue(set, {
+                          usesWeight: snapshot.trackingType !== 'time',
+                          usesTime: snapshot.trackingType !== 'weight',
+                          isUnilateral: snapshot.isUnilateral === 1,
+                        })}
                       </span>
                       {set.isDone === 0 && <span className="text-xs text-muted">לא בוצע</span>}
                     </li>

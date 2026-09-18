@@ -45,6 +45,7 @@ export function ExercisePicker({
   const [newGroup, setNewGroup] = useState<MuscleGroup>('חזה');
   const [newEquipment, setNewEquipment] = useState<Equipment>('מוט');
   const [newTracking, setNewTracking] = useState<TrackingType>('weight');
+  const [newUnilateral, setNewUnilateral] = useState(false);
 
   const excluded = useMemo(() => new Set(excludeIds), [excludeIds]);
   const trimmed = query.trim();
@@ -76,7 +77,13 @@ export function ExercisePicker({
   };
 
   const createAndPick = async () => {
-    const id = await createExercise(trimmed, newGroup, newEquipment, newTracking);
+    const id = await createExercise(
+      trimmed,
+      newGroup,
+      newEquipment,
+      newTracking,
+      newUnilateral ? 1 : 0,
+    );
     await pick(id);
   };
 
@@ -161,6 +168,16 @@ export function ExercisePicker({
               </option>
             ))}
           </select>
+
+          <label className="mt-2 flex items-center gap-2 text-xs text-muted">
+            <input
+              type="checkbox"
+              checked={newUnilateral}
+              onChange={(e) => setNewUnilateral(e.target.checked)}
+              className="h-4 w-4 accent-[var(--color-volt)]"
+            />
+            יד/רגל אחת בכל פעם (ימין ושמאל בנפרד)
+          </label>
         </div>
       )}
 

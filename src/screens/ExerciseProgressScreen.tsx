@@ -6,7 +6,14 @@ import { Sheet } from '../components/Sheet';
 import { Button, Chip, EmptyState, IconButton, ScreenHeader, Spinner } from '../components/ui';
 import type { ID } from '../db/types';
 import { useExercise, useExerciseProgress } from '../hooks/useData';
-import { formatDateLong, formatDuration, formatNumber, formatWeight, plural } from '../lib/format';
+import {
+  formatDateLong,
+  formatDuration,
+  formatNumber,
+  formatSetValue,
+  formatWeight,
+  plural,
+} from '../lib/format';
 import { setExerciseDefaultNote } from '../services/exerciseLibraryService';
 
 type Metric = 'topWeight' | 'oneRepMax';
@@ -174,30 +181,12 @@ export function ExerciseProgressScreen() {
                     </button>
                     <div className="tnum flex flex-wrap gap-x-3 gap-y-1 px-3 py-2 text-sm">
                       {entry.sets.map((set) => (
-                        <span key={set.id} className="text-muted">
-                          {isTime ? (
-                            <>
-                              {set.weight !== null && (
-                                <>
-                                  <span className="font-semibold text-body">
-                                    {formatWeight(set.weight)}
-                                  </span>
-                                  {' × '}
-                                </>
-                              )}
-                              <span className="font-semibold text-body">
-                                {formatDuration(set.durationSeconds ?? 0)}
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <span className="font-semibold text-body">
-                                {formatWeight(set.weight)}
-                              </span>
-                              {' × '}
-                              {set.reps ?? '—'}
-                            </>
-                          )}
+                        <span key={set.id} className="font-semibold text-body">
+                          {formatSetValue(set, {
+                            usesWeight,
+                            usesTime: isTime,
+                            isUnilateral: exercise.isUnilateral === 1,
+                          })}
                         </span>
                       ))}
                     </div>

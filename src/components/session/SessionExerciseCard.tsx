@@ -14,7 +14,7 @@ import {
 import { ConfirmDialog } from '../ConfirmDialog';
 import { IconChart, IconNote, IconPlus, IconTrash } from '../icons';
 import { Button, IconButton } from '../ui';
-import { SetRow } from './SetRow';
+import { SetRow, type Side } from './SetRow';
 
 /** תרגיל אחד בתוך מסך האימון הפעיל, על כל הסטים שלו. */
 export function SessionExerciseCard({
@@ -33,6 +33,7 @@ export function SessionExerciseCard({
   const { start } = useRestTimer();
   const [confirmRemove, setConfirmRemove] = useState(false);
 
+  const isUnilateral = snapshot.isUnilateral === 1;
   const usesTime = snapshot.trackingType === 'time' || snapshot.trackingType === 'weightTime';
   const usesWeight =
     snapshot.trackingType === 'weight' || snapshot.trackingType === 'weightTime';
@@ -110,6 +111,7 @@ export function SessionExerciseCard({
         {usesWeight && <span className="min-w-0 flex-1 text-center">משקל</span>}
         <span className="min-w-0 flex-1 text-center text-volt">
           יעד {targetRange} {usesTime ? 'שנ׳' : 'חז׳'}
+          {isUnilateral && ' לכל צד'}
         </span>
         <span className="w-14 shrink-0" />
       </div>
@@ -121,10 +123,15 @@ export function SessionExerciseCard({
             log={log}
             prefill={prefillForSet(previous, log.setNumber)}
             trackingType={snapshot.trackingType}
+            isUnilateral={isUnilateral}
             canRemove={sets.length > 1}
             onCommitWeight={(v) => updateSet(log.id, { weight: v })}
-            onCommitReps={(v) => updateSet(log.id, { reps: v })}
-            onCommitDuration={(v) => updateSet(log.id, { durationSeconds: v })}
+            onCommitReps={(v, side: Side) =>
+              updateSet(log.id, side === 'left' ? { repsLeft: v } : { reps: v })
+            }
+            onCommitDuration={(v, side: Side) =>
+              updateSet(log.id, side === 'left' ? { durationSecondsLeft: v } : { durationSeconds: v })
+            }
             onToggleWarmup={() => updateSet(log.id, { isWarmup: log.isWarmup === 1 ? 0 : 1 })}
             onToggleDone={() => toggleDone(log)}
             onRemove={() => removeSet(log.id)}

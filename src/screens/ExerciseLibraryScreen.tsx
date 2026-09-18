@@ -155,6 +155,7 @@ export function ExerciseLibraryScreen() {
                       {entry.exercise.muscleGroup} · {entry.exercise.equipment}
                       {entry.exercise.trackingType !== 'weight' &&
                         ` · ${TRACKING_LABEL[entry.exercise.trackingType]}`}
+                      {entry.exercise.isUnilateral === 1 && ' · ימין/שמאל'}
                       {entry.sessionsPerformed > 0 &&
                         ` · בוצע ${inCount(entry.sessionsPerformed, 'אימון אחד', 'אימונים')}`}
                     </span>
@@ -193,6 +194,7 @@ function EditExerciseSheet({
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>(exercise.muscleGroup);
   const [equipment, setEquipment] = useState<Equipment>(exercise.equipment);
   const [trackingType, setTrackingType] = useState<TrackingType>(exercise.trackingType);
+  const [unilateral, setUnilateral] = useState(exercise.isUnilateral === 1);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
 
@@ -200,7 +202,13 @@ function EditExerciseSheet({
   const inUse = entry.sessionsPerformed > 0 || entry.inPlans > 0;
 
   const save = async () => {
-    await updateExercise(exercise.id, { name, muscleGroup, equipment, trackingType });
+    await updateExercise(exercise.id, {
+      name,
+      muscleGroup,
+      equipment,
+      trackingType,
+      isUnilateral: unilateral ? 1 : 0,
+    });
     onClose();
   };
 
@@ -270,6 +278,22 @@ function EditExerciseSheet({
           ״זמן בלבד״ לפלאנק ותרגילי משקל גוף — בלי שדה ק"ג בכלל. ״משקל × זמן״ להליכת חווה
           וכדומה, שבהם גם המשקל וגם המשך חשובים.
         </p>
+
+        <label className="tap mt-3 flex items-center gap-3 rounded-xl border border-line bg-ink p-3">
+          <input
+            type="checkbox"
+            checked={unilateral}
+            onChange={(e) => setUnilateral(e.target.checked)}
+            className="h-5 w-5 shrink-0 accent-[var(--color-volt)]"
+          />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold">יד/רגל אחת בכל פעם</span>
+            <span className="block text-[11px] leading-relaxed text-muted">
+              לתרגילים כמו הרחקות צד בכבלים או חתירה במשקולת יד. יירשמו שני ערכים נפרדים —
+              ימין ושמאל.
+            </span>
+          </span>
+        </label>
 
         <p className="tnum mt-3 text-xs text-muted">
           {entry.sessionsPerformed > 0
@@ -358,9 +382,10 @@ function CreateExerciseSheet({ open, onClose }: { open: boolean; onClose: () => 
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>('חזה');
   const [equipment, setEquipment] = useState<Equipment>('מוט');
   const [trackingType, setTrackingType] = useState<TrackingType>('weight');
+  const [unilateral, setUnilateral] = useState(false);
 
   const submit = async () => {
-    await createExercise(name, muscleGroup, equipment, trackingType);
+    await createExercise(name, muscleGroup, equipment, trackingType, unilateral ? 1 : 0);
     setName('');
     onClose();
   };
@@ -428,6 +453,16 @@ function CreateExerciseSheet({ open, onClose }: { open: boolean; onClose: () => 
           </option>
         ))}
       </select>
+
+      <label className="tap mt-3 flex items-center gap-3 rounded-xl border border-line bg-ink p-3">
+        <input
+          type="checkbox"
+          checked={unilateral}
+          onChange={(e) => setUnilateral(e.target.checked)}
+          className="h-5 w-5 shrink-0 accent-[var(--color-volt)]"
+        />
+        <span className="text-sm font-semibold">יד/רגל אחת בכל פעם</span>
+      </label>
 
       <p className="mt-3 text-[11px] leading-relaxed text-muted">
         התרגיל נשמר במאגר לצמיתות ויהיה זמין בכל אימון, לא רק בזה הנוכחי.

@@ -53,6 +53,7 @@ export async function startSession(workoutId: ID): Promise<ID> {
     note: row.note,
     exerciseName: byId.get(row.exerciseId)?.name ?? 'תרגיל',
     trackingType: byId.get(row.exerciseId)?.trackingType ?? 'weight',
+    isUnilateral: byId.get(row.exerciseId)?.isUnilateral ?? 0,
   }));
 
   const sets: SetLog[] = snapshots.flatMap((snapshot) =>
@@ -97,6 +98,7 @@ export async function addExerciseToSession(
     note: '',
     exerciseName: exercise.name,
     trackingType: exercise.trackingType,
+    isUnilateral: exercise.isUnilateral,
   };
 
   const sets = Array.from({ length: targetSets }, (_, i) =>
@@ -164,7 +166,12 @@ export async function removeSet(setLogId: ID): Promise<void> {
 
 export function updateSet(
   setLogId: ID,
-  changes: Partial<Pick<SetLog, 'weight' | 'reps' | 'durationSeconds' | 'isWarmup'>>,
+  changes: Partial<
+    Pick<
+      SetLog,
+      'weight' | 'reps' | 'repsLeft' | 'durationSeconds' | 'durationSecondsLeft' | 'isWarmup'
+    >
+  >,
 ): Promise<number> {
   return setLogsRepo.update(setLogId, changes);
 }
@@ -177,7 +184,7 @@ export function updateSet(
 export async function setDone(
   setLogId: ID,
   done: boolean,
-  fallback?: { weight: number | null; reps: number | null; durationSeconds: number | null },
+  fallback?: Partial<Pick<SetLog, 'weight' | 'reps' | 'repsLeft' | 'durationSeconds' | 'durationSecondsLeft'>>,
 ): Promise<void> {
   const current = await setLogsRepo.get(setLogId);
   if (!current) return;
@@ -192,7 +199,9 @@ export async function setDone(
     completedAt: Date.now(),
     weight: current.weight ?? fallback?.weight ?? null,
     reps: current.reps ?? fallback?.reps ?? null,
+    repsLeft: current.repsLeft ?? fallback?.repsLeft ?? null,
     durationSeconds: current.durationSeconds ?? fallback?.durationSeconds ?? null,
+    durationSecondsLeft: current.durationSecondsLeft ?? fallback?.durationSecondsLeft ?? null,
   });
 }
 
@@ -213,10 +222,7 @@ export function setSessionExerciseNote(sessionExerciseId: ID, note: string): Pro
 export async function finishSession(sessionId: ID): Promise<void> {
   await db.transaction('rw', db.sessions, db.sessionExercises, db.setLogs, async () => {
     const logs = await db.setLogs.where('sessionId').equals(sessionId).toArray();
-    const empty = logs.filter(
-      (l) =>
-        l.isDone === 0 && l.weight === null && l.reps === null && l.durationSeconds === null,
-    );
+    const empty = logs.filter((l) => l.isDone === 0 && isBlank(l));
     if (empty.length) await db.setLogs.bulkDelete(empty.map((l) => l.id));
 
     const remaining = new Set(
@@ -248,8 +254,17 @@ export function deleteSession(sessionId: ID): Promise<void> {
 /** האם נרשם באימון משהו בכלל — מבדיל בין "נפתח בטעות" ל"אימון אמיתי". */
 export async function sessionHasData(sessionId: ID): Promise<boolean> {
   const logs = await setLogsRepo.bySession(sessionId);
-  return logs.some(
-    (l) => l.isDone === 1 || l.weight !== null || l.reps !== null || l.durationSeconds !== null,
+  return logs.some((l) => l.isDone === 1 || !isBlank(l));
+}
+
+/** סט שלא הוזן בו שום ערך — בשום צד ובשום יחידה. */
+function isBlank(l: SetLog): boolean {
+  return (
+    l.weight === null &&
+    l.reps === null &&
+    l.repsLeft === null &&
+    l.durationSeconds === null &&
+    l.durationSecondsLeft === null
   );
 }
 
@@ -261,7 +276,9 @@ function emptySet(sessionId: ID, exerciseId: ID, setNumber: number): SetLog {
     setNumber,
     weight: null,
     reps: null,
+    repsLeft: null,
     durationSeconds: null,
+    durationSecondsLeft: null,
     isWarmup: 0,
     isDone: 0,
     completedAt: null,

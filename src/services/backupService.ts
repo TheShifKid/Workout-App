@@ -10,7 +10,7 @@ import { toLocalDateKey } from '../lib/format';
  * CURRENT_SCHEMA_VERSION — וגיבויים ישנים ימשיכו להיטען בלי לגעת בשאר הקוד.
  */
 
-export const CURRENT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 4;
 const APP_SIGNATURE = 'workout-app';
 
 export interface BackupFile {
@@ -121,6 +121,23 @@ const MIGRATIONS: Record<number, Migration> = {
       },
     };
   },
+  // 3→4: תרגילים חד-צדדיים. ברירות מחדל שמשמרות בדיוק את ההתנהגות הקודמת.
+  3: (backup) => ({
+    ...backup,
+    data: {
+      ...backup.data,
+      exercises: backup.data.exercises.map((e) => ({ isUnilateral: 0, ...(e as object) })),
+      sessionExercises: backup.data.sessionExercises.map((e) => ({
+        isUnilateral: 0,
+        ...(e as object),
+      })),
+      setLogs: backup.data.setLogs.map((l) => ({
+        repsLeft: null,
+        durationSecondsLeft: null,
+        ...(l as object),
+      })),
+    },
+  }),
 };
 
 export function migrateBackup(raw: unknown): BackupFile {

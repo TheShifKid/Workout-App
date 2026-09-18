@@ -18,6 +18,7 @@ import {
 import { useNow } from '../hooks/useNow';
 import { formatDuration, formatNumber, plural } from '../lib/format';
 import { setExerciseDefaultNote } from '../services/exerciseLibraryService';
+import { addExerciseToPlan, isInPlan } from '../services/planService';
 import {
   addExerciseToSession,
   discardSession,
@@ -51,6 +52,8 @@ export function ActiveSessionScreen() {
   const [defaultNoteFor, setDefaultNoteFor] = useState<ID | null>(null);
   const [defaultNoteDraft, setDefaultNoteDraft] = useState('');
   const [confirmFinish, setConfirmFinish] = useState(false);
+  /** תרגיל שנוסף תוך כדי אימון ומחכה להחלטה אם להוסיף אותו גם לתוכנית. */
+  const [offerToPlan, setOfferToPlan] = useState<{ id: ID; name: string } | null>(null);
 
   if (session === undefined || snapshots === undefined || logs === undefined || !exerciseMap) {
     return <Spinner />;
@@ -171,7 +174,14 @@ export function ActiveSessionScreen() {
         onClose={() => setPicking(false)}
         excludeIds={exerciseIds}
         title="הוספת תרגיל לאימון"
-        onPick={(exerciseId) => addExerciseToSession(session.id, exerciseId)}
+        onPick={async (exerciseId) => {
+          await addExerciseToSession(session.id, exerciseId);
+          // תרגיל שניסית באמצע אימון לרוב שווה גם לפעמים הבאות — אבל רק
+          // אם יש סוג אימון לשייך אליו, והוא עוד לא שם.
+          if (!session.workoutId || (await isInPlan(session.workoutId, exerciseId))) return;
+          const name = exerciseMap.get(exerciseId)?.name;
+          if (name) setOfferToPlan({ id: exerciseId, name });
+        }}
       />
 
       <Sheet
@@ -235,6 +245,31 @@ export function ActiveSessionScreen() {
           className="w-full rounded-xl border border-line bg-ink p-3 leading-relaxed outline-none focus:border-volt"
         />
       </Sheet>
+
+      <ConfirmDialog
+        open={offerToPlan !== null}
+        title={`להוסיף את ${offerToPlan?.name ?? ''} לתוכנית?`}
+        body={
+          <>
+            <span className="block">
+              התרגיל נוסף לאימון הנוכחי. אפשר להוסיף אותו גם לתוכנית של ״{session.workoutName}״,
+              כך שיופיע אוטומטית בפעמים הבאות.
+            </span>
+            <span className="mt-2 block text-xs">
+              תמיד אפשר לשנות את זה אחר כך בעריכת התוכנית.
+            </span>
+          </>
+        }
+        cancelLabel="רק הפעם"
+        confirmLabel="הוסף לתוכנית"
+        onCancel={() => setOfferToPlan(null)}
+        onConfirm={async () => {
+          if (offerToPlan && session.workoutId) {
+            await addExerciseToPlan(session.workoutId, offerToPlan.id);
+          }
+          setOfferToPlan(null);
+        }}
+      />
 
       <ConfirmDialog
         open={confirmFinish}
